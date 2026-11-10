@@ -1,0 +1,420 @@
+// Internationalisation du site public : français (/fr/…) et anglais (/en/…).
+// Une adresse sans préfixe est redirigée vers la langue préférée du navigateur (français par défaut).
+// Le back-office reste en français.
+
+export const LANGUES = ["fr", "en"] as const;
+export type Langue = (typeof LANGUES)[number];
+export const LANGUE_DEFAUT: Langue = "fr";
+
+export function estLangue(v: unknown): v is Langue {
+  return typeof v === "string" && (LANGUES as readonly string[]).includes(v);
+}
+
+/** Construit un lien interne dans la langue voulue : /fr/article/x ou /en/article/x. */
+export function lien(lang: Langue, chemin: string) {
+  return chemin === "/" ? `/${lang}` : `/${lang}${chemin}`;
+}
+
+/** Retire le préfixe de langue d'un chemin d'URL. */
+export function cheminSansLangue(chemin: string): { lang: Langue; reste: string } {
+  const m = chemin.match(/^\/(fr|en)(\/.*)?$/);
+  if (m) return { lang: m[1] as Langue, reste: m[2] || "/" };
+  return { lang: LANGUE_DEFAUT, reste: chemin || "/" };
+}
+
+/** Langue préférée d'après l'en-tête Accept-Language (français par défaut). */
+export function languePreferee(acceptLanguage: string | null): Langue {
+  if (!acceptLanguage) return LANGUE_DEFAUT;
+  for (const partie of acceptLanguage.split(",")) {
+    const code = partie.trim().slice(0, 2).toLowerCase();
+    if (estLangue(code)) return code;
+  }
+  return LANGUE_DEFAUT;
+}
+
+export const LOCALES: Record<Langue, string> = { fr: "fr-FR", en: "en-GB" };
+const fuseau = "Africa/Libreville";
+
+export function formatDate(lang: Langue, d: Date | string | null | undefined, style: "longue" | "courte" | "heure" | "mois" | "jour" = "longue") {
+  if (!d) return "";
+  const date = new Date(d);
+  const options: Record<string, Intl.DateTimeFormatOptions> = {
+    longue: { day: "numeric", month: "long", year: "numeric" },
+    courte: { day: "2-digit", month: "short", year: "numeric" },
+    heure: { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" },
+    mois: { month: "long", year: "numeric" },
+    jour: { weekday: "long", day: "numeric", month: "long", year: "numeric" },
+  };
+  const s = new Intl.DateTimeFormat(LOCALES[lang], { ...options[style], timeZone: fuseau }).format(date);
+  return style === "mois" || style === "jour" ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+const fr = {
+  // Général
+  slogan: "La femme digitale",
+  descriptionSite:
+    "Le magazine en ligne des DigieWomen Awards Africa : l'actualité du numérique au Gabon, en Afrique et dans le monde, avec un regard sur les femmes du numérique.",
+  accroche: "L'actualité du numérique au Gabon, en Afrique et dans le monde — par les DigieWomen Awards Africa.",
+  allerAuContenu: "Aller au contenu",
+  accueil: "Accueil",
+  aPropos: "À propos",
+  contact: "Contact",
+  newsletter: "Newsletter",
+  rechercher: "Rechercher",
+  plus: "Plus",
+  videos: "Vidéos",
+  numeros: "Numéros",
+  anciensNumeros: "Anciens numéros",
+  leNumero: "Le numéro",
+  regions: "Régions",
+  thematiques: "Thématiques",
+  magazine: "Magazine",
+  ouvrirMenu: "Ouvrir le menu",
+  fermerMenu: "Fermer le menu",
+  placeholderRecherche: "Rechercher un article…",
+  toutVoir: "Tout voir",
+  par: "par",
+  Par: "Par",
+  min: "min",
+  minLecture: "min de lecture",
+  video: "Vidéo",
+  aLaUne: "À la une",
+  types: { ACTUALITE: "Actualité", INTERVIEW: "Interview", DOSSIER: "Dossier", VIDEO: "Vidéo" },
+  // Thème, langue
+  themeClair: "Thème clair",
+  themeSombre: "Thème sombre",
+  changerTheme: "Changer de thème",
+  langue: "Langue",
+  autreLangue: "English",
+  autreLangueCourt: "EN",
+  // Accueil
+  dernieresActualites: "Dernières actualités",
+  actualitesParRegion: "Actualités par région",
+  portraitsLaureates: "Portraits & lauréates DIWAA",
+  femmesDuNumerique: "Femmes du numérique",
+  tousLesPortraits: "Tous les portraits",
+  innovationAgenda: "Innovation, IA & agenda",
+  espaceVideo: "Espace vidéo",
+  bientotEnLigne: "Bientôt en ligne",
+  interviewsAfdy: "Interviews & avatar IA AFDY",
+  texteAfdy: "Retrouvez prochainement ici les interviews vidéo des lauréates et les interventions d'AFDY, l'avatar IA des DigieWomen Awards.",
+  newsletterMensuelle: "Newsletter mensuelle",
+  neManquezAucun: "Ne manquez aucun numéro",
+  texteNewsletterBandeau: "Recevez le DIWA MAG et les meilleurs articles du mois. Désinscription en un clic, à tout moment.",
+  toutesArchives: "Toutes les archives",
+  rubriqueVide: "Les premiers articles de cette rubrique arrivent bientôt.",
+  aucunArticle: "Aucun article pour le moment.",
+  // Barre latérale
+  lesPlusLus: "Les plus lus",
+  laNewsletter: "La newsletter DIWA",
+  texteNewsletter: "Chaque mois, l'essentiel du numérique au féminin, directement dans votre boîte de réception.",
+  motsCles: "Mots-clés",
+  meteo: "Météo",
+  // Article
+  filAriane: "Fil d'Ariane",
+  publieLe: "Publié le",
+  misAJourLe: "Mis à jour le",
+  partager: "Partager",
+  partagerSur: "Partager sur",
+  copierLien: "Copier le lien",
+  lienCopie: "Lien copié",
+  partagerTelephone: "Partager via le téléphone",
+  aProposAuteur: "À propos de l'auteur",
+  aLireAussi: "À lire aussi",
+  commentaire: "commentaire",
+  commentaires: "commentaires",
+  laisserCommentaire: "Laisser un commentaire",
+  emailJamaisPublie: "Votre adresse e-mail ne sera jamais publiée. Les champs marqués d'un astérisque sont obligatoires.",
+  // Bandeaux propres à la version anglaise (sans objet en français)
+  traductionIndisponible: "",
+  traductionAuto: "",
+  traduireAvecGoogle: "",
+  articleIntrouvable: "Article introuvable",
+  // Commentaires
+  nom: "Nom",
+  email: "Adresse e-mail",
+  emailAide: "Jamais affichée publiquement.",
+  message: "Commentaire",
+  lienFacultatif: "Lien pour enrichir l'article (facultatif)",
+  lienAide: "Les liens sont vérifiés par la rédaction avant publication.",
+  consentement1: "J'accepte que mon nom et mon commentaire soient publiés et que mon adresse e-mail soit conservée par la rédaction, conformément à la",
+  politiqueConfidentialite: "politique de confidentialité",
+  publierCommentaire: "Publier le commentaire",
+  repondre: "Répondre",
+  annuler: "Annuler",
+  reponseA: "Réponse à",
+  signaler: "Signaler",
+  signale: "Signalé, merci",
+  confirmerSignalement: "Signaler ce commentaire à la rédaction ?",
+  // Newsletter / contact
+  votreEmail: "Votre adresse e-mail",
+  sInscrire: "S'inscrire",
+  sujet: "Sujet",
+  messageContact: "Message",
+  envoyer: "Envoyer",
+  // Listes
+  region: "Région",
+  thematique: "Thématique",
+  motCle: "Mot-clé",
+  auteur: "Auteur",
+  article: "article",
+  articles: "articles",
+  publie: "publié",
+  publies: "publiés",
+  pagination: "Pagination",
+  pagePrecedente: "Page précédente",
+  pageSuivante: "Page suivante",
+  // Recherche
+  rechercheTitre: "Recherche",
+  rechercheDescription: "Articles, interviews, dossiers, rubriques et mots-clés.",
+  recherchePlaceholder: "IA, cybersécurité, lauréates…",
+  chercher: "Chercher",
+  derniersArticles: "Derniers articles",
+  resultat: "résultat",
+  resultats: "résultats",
+  pour: "pour",
+  // Vidéos / numéros
+  videosDescription: "Interviews, reportages et interventions de l'avatar IA AFDY.",
+  videosVides: "Les premières vidéos arrivent",
+  videosVidesTexte: "Les interviews des lauréates et les interventions de l'avatar IA AFDY seront publiées ici.",
+  archives: "Archives",
+  lesNumeros: "Les numéros",
+  numerosDescription: "Chaque mois, une sélection d'articles, d'interviews et de dossiers — à lire en ligne ou à télécharger en PDF.",
+  aucunNumero: "Aucun numéro publié pour le moment.",
+  pdfDisponible: "PDF disponible",
+  telechargerPdf: "Télécharger le PDF",
+  pdfBientot: "Version PDF bientôt disponible",
+  sommaire: "Sommaire",
+  couverture: "Couverture",
+  // Pied de page
+  rubriques: "Rubriques",
+  leMagazine: "Le magazine",
+  fluxRss: "Flux RSS",
+  serviceCommercial: "Service commercial",
+  presentationPied:
+    "Le magazine en ligne des DigieWomen Awards Africa (DIWAA), porté par Digiewomen School — Angondjé Sherko, Akanda (Gabon). Un regard engagé sur le numérique et les femmes qui le façonnent.",
+  droits: "DIWA MAG — Digiewomen School. Tous droits réservés.",
+  mentionsLegales: "Mentions légales",
+  confidentialite: "Confidentialité",
+  // 404 / hors ligne
+  pageIntrouvable: "Page introuvable",
+  pageIntrouvableTexte: "Cet article a peut-être été déplacé ou archivé.",
+  horsLigne: "Vous êtes hors ligne",
+  horsLigneTexte:
+    "Cette page n'est pas encore disponible sans connexion. Les articles que vous avez déjà consultés restent lisibles : revenez à l'accueil ou réessayez dès que le réseau revient.",
+  retourAccueil: "Retour à l'accueil",
+  // PWA
+  installer: "Installez DIWA MAG",
+  installerTexte: "Lisez le magazine comme une application, même hors connexion.",
+  installerBouton: "Installer l'application",
+  installerIos1: "Sur iPhone : touchez",
+  installerIos2: "Partager",
+  installerIos3: "puis",
+  installerIos4: "« Sur l'écran d'accueil »",
+  fermer: "Fermer",
+  notifActives: "Notifications activées",
+  activerNotifs: "Activer les notifications",
+  notifsBloquees: "Notifications bloquées dans les réglages du navigateur.",
+  // Météo
+  meteoChargement: "Chargement de la météo…",
+  meteoErreur: "Météo indisponible pour le moment.",
+  ressenti: "Ressenti",
+  humidite: "Humidité",
+  vent: "Vent",
+  pluie: "Pluie",
+  prochaines24h: "Prochaines 24 heures",
+  sept_jours: "7 prochains jours",
+  maPosition: "Ma position",
+  ville: "Ville",
+  aujourdhui: "Aujourd'hui",
+  temperature: "Température",
+  heure: "Heure",
+  probaPluie: "Risque de pluie",
+  voirTableau: "Voir les données",
+  sourceMeteo: "Données Open-Meteo",
+  meteoDetail: "Prévisions détaillées",
+};
+
+export type Dictionnaire = typeof fr;
+
+const en: Dictionnaire = {
+  slogan: "The digital woman",
+  descriptionSite:
+    "The online magazine of the DigieWomen Awards Africa: digital news from Gabon, Africa and the world, with a focus on women in tech.",
+  accroche: "Digital news from Gabon, Africa and the world — by the DigieWomen Awards Africa.",
+  allerAuContenu: "Skip to content",
+  accueil: "Home",
+  aPropos: "About",
+  contact: "Contact",
+  newsletter: "Newsletter",
+  rechercher: "Search",
+  plus: "More",
+  videos: "Videos",
+  numeros: "Issues",
+  anciensNumeros: "Past issues",
+  leNumero: "The issue",
+  regions: "Regions",
+  thematiques: "Topics",
+  magazine: "Magazine",
+  ouvrirMenu: "Open menu",
+  fermerMenu: "Close menu",
+  placeholderRecherche: "Search an article…",
+  toutVoir: "See all",
+  par: "by",
+  Par: "By",
+  min: "min",
+  minLecture: "min read",
+  video: "Video",
+  aLaUne: "Top stories",
+  types: { ACTUALITE: "News", INTERVIEW: "Interview", DOSSIER: "Feature", VIDEO: "Video" },
+  themeClair: "Light theme",
+  themeSombre: "Dark theme",
+  changerTheme: "Switch theme",
+  langue: "Language",
+  autreLangue: "Français",
+  autreLangueCourt: "FR",
+  dernieresActualites: "Latest news",
+  actualitesParRegion: "News by region",
+  portraitsLaureates: "DIWAA profiles & award winners",
+  femmesDuNumerique: "Women in tech",
+  tousLesPortraits: "All profiles",
+  innovationAgenda: "Innovation, AI & events",
+  espaceVideo: "Video corner",
+  bientotEnLigne: "Coming soon",
+  interviewsAfdy: "Interviews & AFDY, the AI avatar",
+  texteAfdy: "Video interviews with the award winners and appearances by AFDY, the DigieWomen Awards' AI avatar, will soon be available here.",
+  newsletterMensuelle: "Monthly newsletter",
+  neManquezAucun: "Never miss an issue",
+  texteNewsletterBandeau: "Get DIWA MAG and the month's best stories. Unsubscribe in one click, at any time.",
+  toutesArchives: "All archives",
+  rubriqueVide: "The first stories in this section are coming soon.",
+  aucunArticle: "No articles yet.",
+  lesPlusLus: "Most read",
+  laNewsletter: "The DIWA newsletter",
+  texteNewsletter: "Every month, the best of women in tech, straight to your inbox.",
+  motsCles: "Tags",
+  meteo: "Weather",
+  filAriane: "Breadcrumb",
+  publieLe: "Published on",
+  misAJourLe: "Updated on",
+  partager: "Share",
+  partagerSur: "Share on",
+  copierLien: "Copy link",
+  lienCopie: "Link copied",
+  partagerTelephone: "Share from your phone",
+  aProposAuteur: "About the author",
+  aLireAussi: "Read also",
+  commentaire: "comment",
+  commentaires: "comments",
+  laisserCommentaire: "Leave a comment",
+  emailJamaisPublie: "Your email address will never be published. Fields marked with an asterisk are required.",
+  traductionIndisponible: "This article has not been translated into English yet: you are reading the original French version.",
+  traductionAuto: "This English version was produced by machine translation.",
+  traduireAvecGoogle: "Translate with Google",
+  articleIntrouvable: "Article not found",
+  nom: "Name",
+  email: "Email address",
+  emailAide: "Never displayed publicly.",
+  message: "Comment",
+  lienFacultatif: "Link to enrich the article (optional)",
+  lienAide: "Links are checked by the editorial team before publication.",
+  consentement1: "I agree that my name and comment will be published and that my email address will be kept by the editorial team, in accordance with the",
+  politiqueConfidentialite: "privacy policy",
+  publierCommentaire: "Post comment",
+  repondre: "Reply",
+  annuler: "Cancel",
+  reponseA: "Reply to",
+  signaler: "Report",
+  signale: "Reported, thank you",
+  confirmerSignalement: "Report this comment to the editorial team?",
+  votreEmail: "Your email address",
+  sInscrire: "Subscribe",
+  sujet: "Subject",
+  messageContact: "Message",
+  envoyer: "Send",
+  region: "Region",
+  thematique: "Topic",
+  motCle: "Tag",
+  auteur: "Author",
+  article: "article",
+  articles: "articles",
+  publie: "published",
+  publies: "published",
+  pagination: "Pagination",
+  pagePrecedente: "Previous page",
+  pageSuivante: "Next page",
+  rechercheTitre: "Search",
+  rechercheDescription: "Articles, interviews, features, sections and tags.",
+  recherchePlaceholder: "AI, cybersecurity, award winners…",
+  chercher: "Search",
+  derniersArticles: "Latest articles",
+  resultat: "result",
+  resultats: "results",
+  pour: "for",
+  videosDescription: "Interviews, reports and appearances by AFDY, the AI avatar.",
+  videosVides: "The first videos are on their way",
+  videosVidesTexte: "Interviews with the award winners and appearances by AFDY, the AI avatar, will be published here.",
+  archives: "Archives",
+  lesNumeros: "Issues",
+  numerosDescription: "Every month, a selection of articles, interviews and features — read online or download as PDF.",
+  aucunNumero: "No issue published yet.",
+  pdfDisponible: "PDF available",
+  telechargerPdf: "Download the PDF",
+  pdfBientot: "PDF version coming soon",
+  sommaire: "Contents",
+  couverture: "Cover",
+  rubriques: "Sections",
+  leMagazine: "The magazine",
+  fluxRss: "RSS feed",
+  serviceCommercial: "Advertising & sales",
+  presentationPied:
+    "The online magazine of the DigieWomen Awards Africa (DIWAA), published by Digiewomen School — Angondjé Sherko, Akanda (Gabon). A committed look at tech and the women shaping it.",
+  droits: "DIWA MAG — Digiewomen School. All rights reserved.",
+  mentionsLegales: "Legal notice",
+  confidentialite: "Privacy",
+  pageIntrouvable: "Page not found",
+  pageIntrouvableTexte: "This article may have been moved or archived.",
+  horsLigne: "You are offline",
+  horsLigneTexte:
+    "This page is not available offline yet. Articles you have already read remain available: go back to the home page or try again once you are connected.",
+  retourAccueil: "Back to home",
+  installer: "Install DIWA MAG",
+  installerTexte: "Read the magazine like an app, even offline.",
+  installerBouton: "Install the app",
+  installerIos1: "On iPhone: tap",
+  installerIos2: "Share",
+  installerIos3: "then",
+  installerIos4: "“Add to Home Screen”",
+  fermer: "Close",
+  notifActives: "Notifications on",
+  activerNotifs: "Turn on notifications",
+  notifsBloquees: "Notifications are blocked in your browser settings.",
+  meteoChargement: "Loading weather…",
+  meteoErreur: "Weather is unavailable right now.",
+  ressenti: "Feels like",
+  humidite: "Humidity",
+  vent: "Wind",
+  pluie: "Rain",
+  prochaines24h: "Next 24 hours",
+  sept_jours: "Next 7 days",
+  maPosition: "My location",
+  ville: "City",
+  aujourdhui: "Today",
+  temperature: "Temperature",
+  heure: "Time",
+  probaPluie: "Chance of rain",
+  voirTableau: "View data",
+  sourceMeteo: "Data: Open-Meteo",
+  meteoDetail: "Detailed forecast",
+};
+
+export const DICTIONNAIRES: Record<Langue, Dictionnaire> = { fr, en };
+
+export function dico(lang: Langue): Dictionnaire {
+  return DICTIONNAIRES[lang];
+}
+
+/** Accord simple : « 1 article », « 3 articles ». */
+export function pluriel(n: number, singulier: string, plurielForme: string) {
+  return `${n} ${n > 1 ? plurielForme : singulier}`;
+}

@@ -1,26 +1,228 @@
 @import "tailwindcss";
 
+/* Charte DIWAA 2026 — or du DIWA MAG, encre profonde, brun « Entrepreneuriat ».
+   « encre » = couleur du texte (s'inverse en thème sombre) ; « noir » = fonds toujours sombres et texte posé sur l'or. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --or: #cda40e;
+  --or-fonce: #9c7c06;
+  --or-clair: #f6ecc4;
+  --brun: #8b3a0f;
+  --noir: #111111;
+  --encre: #111111;
+  --encre-2: #262626;
+  --texte: #1c1c1c;
+  --texte-doux: #5c5c5c;
+  --ligne: #e6e3da;
+  --fond: #ffffff;
+  --fond-2: #f7f5ef;
+  --fond-sombre: #0d0d0d;
+  --serie: #9c7c06;
+  --succes: #15803d;
+  --danger: #b91c1c;
+}
+
+/* Thème sombre : appliqué par le script de thème (choix enregistré, sinon réglage du système). */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --or-fonce: #e0b928;
+  --or-clair: #3a3110;
+  --encre: #f3efe4;
+  --encre-2: #d9d4c7;
+  --texte: #e6e2d8;
+  --texte-doux: #a9a59b;
+  --ligne: #2e2c27;
+  --fond: #141414;
+  --fond-2: #1c1b19;
+  --fond-sombre: #070707;
+  --serie: #b08a09;
+  --succes: #4ade80;
+  --danger: #f87171;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-or: var(--or);
+  --color-or-fonce: var(--or-fonce);
+  --color-or-clair: var(--or-clair);
+  --color-brun: var(--brun);
+  --color-noir: var(--noir);
+  --color-encre: var(--encre);
+  --color-encre-2: var(--encre-2);
+  --color-texte: var(--texte);
+  --color-texte-doux: var(--texte-doux);
+  --color-ligne: var(--ligne);
+  --color-fond: var(--fond);
+  --color-fond-2: var(--fond-2);
+  --color-fond-sombre: var(--fond-sombre);
+  --color-serie: var(--serie);
+  --color-succes: var(--succes);
+  --color-danger: var(--danger);
+  --font-titre: var(--font-antonio), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-montserrat), "Segoe UI", system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+}
+
+/* Transition douce lors du changement de thème (désactivée si « réduire les animations »). */
+html.transition-theme,
+html.transition-theme * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--or);
+  color: var(--noir);
+}
+
+:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
+}
+
+/* Titres de bloc façon magazine : barre or + filet qui court jusqu'au bord. */
+.titre-bloc {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-titre);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.titre-bloc::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.12;
+}
+
+/* Corps d'article : lecture confortable, typographie serif. */
+.corps-article {
+  font-family: var(--font-serif);
+  font-size: 1.1875rem;
+  line-height: 1.75;
+  color: var(--texte);
+}
+.corps-article > * + * {
+  margin-top: 1.25em;
+}
+.corps-article h2 {
+  font-family: var(--font-titre);
+  font-size: 1.75rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-top: 2em;
+  color: var(--encre);
+}
+.corps-article h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-top: 1.75em;
+}
+.corps-article a {
+  color: var(--or-fonce);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.corps-article blockquote {
+  position: relative;
+  margin: 2em 0;
+  padding: 1.25em 1.5em 1.25em 1.75em;
+  border-left: 4px solid var(--or);
+  background: var(--fond-2);
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+.corps-article ul {
+  list-style: disc;
+  padding-left: 1.4em;
+}
+.corps-article ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+}
+.corps-article li + li {
+  margin-top: 0.4em;
+}
+.corps-article li::marker {
+  color: var(--or-fonce);
+}
+.corps-article img {
+  border-radius: 4px;
+  width: 100%;
+  height: auto;
+}
+.corps-article hr {
+  border: 0;
+  height: 1px;
+  background: var(--ligne);
+  margin: 2.5em 0;
+}
+.corps-article:not(.sans-lettrine) > p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--font-titre);
+  font-size: 4.2em;
+  line-height: 0.85;
+  padding: 0.05em 0.12em 0 0;
+  color: var(--or-fonce);
+}
+
+/* Éditeur Tiptap (back-office). */
+.editeur .ProseMirror {
+  min-height: 420px;
+  outline: none;
+}
+.editeur .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Défilement du bandeau « À la une ». */
+@keyframes defilement {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ticker-piste {
+  animation: defilement 60s linear infinite;
+}
+.ticker-piste:hover {
+  animation-play-state: paused;
+}
+
+/* Respect du réglage système « réduire les animations ». */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.scrollbar-fine {
+  scrollbar-width: thin;
 }

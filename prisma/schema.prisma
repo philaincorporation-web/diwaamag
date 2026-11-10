@@ -1,0 +1,265 @@
+// Schéma de données du Magazine DIWAA — conforme à la section 8.1 du document d'architecture.
+//
+// Écarts justifiés (Prisma 7) :
+//  - generator "prisma-client" (le générateur "prisma-client-js" est déprécié en v7) avec une sortie dans lib/generated ;
+//  - les URL de connexion (DATABASE_URL / DIRECT_URL) ne sont plus déclarées ici mais dans prisma.config.ts
+//    (migrations) et lib/db.ts (adaptateur PostgreSQL à l'exécution).
+// Ajouts justifiés :
+//  - Article.videoUrl : URL de la vidéo principale des contenus de type VIDEO (dont l'avatar IA AFDY) ;
+//  - Article.dateMiseAJour : date de dernière mise à jour éditoriale affichée au public (exigée en 4.4),
+//    distincte de modifieLe qui change à chaque écriture technique (compteur de vues, statut…) ;
+//  - ArticleTraduction, Rubrique.nomEn/descriptionEn, Numero.titreEn/editoEn : version anglaise du magazine
+//    (lecteurs des zones anglophones), saisie ou relue dans le back-office.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum StatutArticle {
+  BROUILLON
+  PROGRAMME
+  PUBLIE
+  ARCHIVE
+  CORBEILLE
+}
+
+enum TypeContenu {
+  ACTUALITE
+  INTERVIEW
+  DOSSIER
+  VIDEO
+}
+
+enum FamilleRubrique {
+  GEOGRAPHIQUE
+  THEMATIQUE
+}
+
+enum TypeMedia {
+  IMAGE
+  VIDEO
+  PDF
+}
+
+enum StatutCommentaire {
+  EN_ATTENTE
+  APPROUVE
+  REJETE
+  SIGNALE
+}
+
+model Admin {
+  id                String            @id @default(cuid())
+  nom               String
+  email             String            @unique
+  motDePasse        String
+  role              Role              @default(ADMIN)
+  actif             Boolean           @default(true)
+  avatarUrl         String?
+  bio               String?
+  derniereConnexion DateTime?
+  articles          Article[]         @relation("AuteurArticles")
+  versions          ArticleVersion[]
+  medias            Media[]
+  journal           JournalActivite[]
+  creeLe            DateTime          @default(now())
+  modifieLe         DateTime          @updatedAt
+}
+
+model Article {
+  id              String              @id @default(cuid())
+  titre           String
+  slug            String              @unique
+  chapeau         String
+  contenu         Json
+  imageUneUrl     String?
+  imageUneAlt     String?
+  videoUrl        String?
+  type            TypeContenu         @default(ACTUALITE)
+  statut          StatutArticle       @default(BROUILLON)
+  aLaUne          Boolean             @default(false)
+  ordreUne        Int?
+  tempsLecture    Int?
+  vues            Int                 @default(0)
+  metaTitre       String?
+  metaDescription String?
+  datePublication DateTime?
+  dateProgrammee  DateTime?
+  dateMiseAJour   DateTime?
+  auteurId        String
+  auteur          Admin               @relation("AuteurArticles", fields: [auteurId], references: [id])
+  rubriqueId      String
+  rubrique        Rubrique            @relation(fields: [rubriqueId], references: [id])
+  motsCles        ArticleMotCle[]
+  versions        ArticleVersion[]
+  traductions     ArticleTraduction[]
+  commentaires    Commentaire[]
+  numeros         NumeroArticle[]
+  creeLe          DateTime            @default(now())
+  modifieLe       DateTime            @updatedAt
+
+  @@index([statut, datePublication])
+  @@index([rubriqueId])
+}
+
+model ArticleTraduction {
+  id          String   @id @default(cuid())
+  articleId   String
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  langue      String
+  titre       String
+  chapeau     String
+  contenu     Json
+  // true : traduction automatique non relue ; false : relue par la rédaction
+  automatique Boolean  @default(false)
+  creeLe      DateTime @default(now())
+  modifieLe   DateTime @updatedAt
+
+  @@unique([articleId, langue])
+}
+
+model ArticleVersion {
+  id           String   @id @default(cuid())
+  articleId    String
+  article      Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  titre        String
+  contenu      Json
+  modifieParId String
+  modifiePar   Admin    @relation(fields: [modifieParId], references: [id])
+  creeLe       DateTime @default(now())
+
+  @@index([articleId])
+}
+
+model Rubrique {
+  id            String          @id @default(cuid())
+  nom           String          @unique
+  nomEn         String?
+  slug          String          @unique
+  description   String?
+  descriptionEn String?
+  famille       FamilleRubrique
+  ordre         Int             @default(0)
+  couleur       String?
+  articles      Article[]
+}
+
+model MotCle {
+  id       String          @id @default(cuid())
+  nom      String          @unique
+  slug     String          @unique
+  articles ArticleMotCle[]
+}
+
+model ArticleMotCle {
+  articleId String
+  motCleId  String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  motCle    MotCle  @relation(fields: [motCleId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, motCleId])
+}
+
+model Media {
+  id              String    @id @default(cuid())
+  url             String
+  publicId        String
+  type            TypeMedia
+  legende         String?
+  texteAlternatif String
+  largeur         Int?
+  hauteur         Int?
+  ajouteParId     String
+  ajoutePar       Admin     @relation(fields: [ajouteParId], references: [id])
+  creeLe          DateTime  @default(now())
+}
+
+model Commentaire {
+  id           String            @id @default(cuid())
+  articleId    String
+  article      Article           @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       Commentaire?      @relation("Reponses", fields: [parentId], references: [id])
+  reponses     Commentaire[]     @relation("Reponses")
+  nom          String
+  email        String
+  message      String
+  lien         String?
+  statut       StatutCommentaire @default(EN_ATTENTE)
+  signalements Int               @default(0)
+  adresseIp    String?
+  creeLe       DateTime          @default(now())
+
+  @@index([articleId, statut])
+  @@index([email])
+}
+
+model Numero {
+  id            String          @id @default(cuid())
+  titre         String
+  titreEn       String?
+  slug          String          @unique
+  mois          DateTime
+  couvertureUrl String
+  pdfUrl        String?
+  edito         String?
+  editoEn       String?
+  publie        Boolean         @default(false)
+  articles      NumeroArticle[]
+  creeLe        DateTime        @default(now())
+}
+
+model NumeroArticle {
+  numeroId  String
+  articleId String
+  ordre     Int     @default(0)
+  numero    Numero  @relation(fields: [numeroId], references: [id], onDelete: Cascade)
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@id([numeroId, articleId])
+}
+
+model AbonneNewsletter {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  confirme          Boolean   @default(false)
+  jetonConfirmation String?   @unique
+  desinscritLe      DateTime?
+  creeLe            DateTime  @default(now())
+}
+
+model AbonnementPush {
+  id       String   @id @default(cuid())
+  endpoint String   @unique
+  p256dh   String
+  auth     String
+  creeLe   DateTime @default(now())
+}
+
+model JournalActivite {
+  id      String   @id @default(cuid())
+  adminId String
+  admin   Admin    @relation(fields: [adminId], references: [id])
+  action  String
+  cible   String
+  cibleId String?
+  details Json?
+  creeLe  DateTime @default(now())
+
+  @@index([adminId, creeLe])
+}
+
+model Parametre {
+  cle    String @id
+  valeur Json
+}
