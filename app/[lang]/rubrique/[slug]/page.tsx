@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getArticlesRubrique, getRubrique, getRubriques } from "@/lib/data";
 import { dico } from "@/lib/i18n";
-import { alternates, langueParams } from "@/lib/seo";
+import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
 import { BarreLaterale } from "@/components/site/barre-laterale";
 import { EnTetePage, ListeArticles, Pagination, SqueletteListe } from "@/components/site/liste";
 
@@ -11,7 +11,7 @@ type Params = PageProps<"/[lang]/rubrique/[slug]">["params"];
 
 export async function generateStaticParams() {
   const rubriques = await getRubriques("fr");
-  return rubriques.map((r) => ({ slug: r.slug }));
+  return auMoinsUn("slug", rubriques.map((r) => r.slug));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/rubrique/[slug]">): Promise<Metadata> {

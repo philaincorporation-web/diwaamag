@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getIndexPublic, getMotCle } from "@/lib/data";
 import { dico, pluriel } from "@/lib/i18n";
-import { alternates, langueParams } from "@/lib/seo";
+import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
 import { BarreLaterale } from "@/components/site/barre-laterale";
 import { EnTetePage, ListeArticles, SqueletteListe } from "@/components/site/liste";
 
 export async function generateStaticParams() {
   const { motsCles } = await getIndexPublic();
-  return motsCles.map((m) => ({ slug: m.slug }));
+  return auMoinsUn("slug", motsCles.map((m) => m.slug));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/mot-cle/[slug]">): Promise<Metadata> {

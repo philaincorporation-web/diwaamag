@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getAuteur, getIndexPublic } from "@/lib/data";
 import { dico, pluriel } from "@/lib/i18n";
-import { alternates, langueParams } from "@/lib/seo";
+import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
 import { BarreLaterale } from "@/components/site/barre-laterale";
 import { EnTetePage, ListeArticles, SqueletteListe } from "@/components/site/liste";
 
 export async function generateStaticParams() {
   const { auteurs } = await getIndexPublic();
-  return auteurs.map((a) => ({ id: a.id }));
+  return auMoinsUn("id", auteurs.map((a) => a.id));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/auteur/[id]">): Promise<Metadata> {

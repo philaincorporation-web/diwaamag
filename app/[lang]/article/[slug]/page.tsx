@@ -7,7 +7,7 @@ import { CalendarClock, ChevronRight, Clock, Languages, MessageSquare, RefreshCw
 import { getArticle, getArticlesLies, getCommentaires, getIndexPublic } from "@/lib/data";
 import { siteUrl } from "@/lib/format";
 import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
-import { alternates, langueParams } from "@/lib/seo";
+import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
 import { texteBrut } from "@/lib/content";
 import { CarteVerticale, EtiquetteRubrique, TitreBloc } from "@/components/site/cartes";
 import { LecteurVideo, TexteRiche } from "@/components/site/texte-riche";
@@ -17,7 +17,7 @@ import { Apparition } from "@/components/site/animations";
 
 export async function generateStaticParams() {
   const { articles } = await getIndexPublic();
-  return articles.map((a) => ({ slug: a.slug }));
+  return auMoinsUn("slug", articles.map((a) => a.slug));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/article/[slug]">): Promise<Metadata> {

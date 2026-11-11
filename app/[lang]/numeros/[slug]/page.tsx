@@ -5,14 +5,14 @@ import { Suspense } from "react";
 import { FileDown } from "lucide-react";
 import { getNumero, getNumeros } from "@/lib/data";
 import { dico, formatDate } from "@/lib/i18n";
-import { alternates, langueParams } from "@/lib/seo";
+import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
 import { CarteHorizontale } from "@/components/site/cartes";
 import { SqueletteListe } from "@/components/site/liste";
 import { Apparition } from "@/components/site/animations";
 
 export async function generateStaticParams() {
   const numeros = await getNumeros("fr");
-  return numeros.map((n) => ({ slug: n.slug }));
+  return auMoinsUn("slug", numeros.map((n) => n.slug));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/numeros/[slug]">): Promise<Metadata> {
