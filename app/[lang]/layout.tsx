@@ -10,6 +10,7 @@ import { EnTete, EnTeteNavigation } from "@/components/site/en-tete";
 import { PiedDePage } from "@/components/site/pied-de-page";
 import { EcranChargement } from "@/components/site/animations";
 import { ClientPwa } from "@/components/pwa/client-pwa";
+import { Banniere } from "@/components/site/banniere";
 
 export function generateStaticParams() {
   return LANGUES.map((lang) => ({ lang }));
@@ -51,6 +52,7 @@ export default async function RacineSite({ children, params }: LayoutProps<"/[la
         <Suspense fallback={<EnTete rubriques={nav} numeroCourant={numero} />}>
           <EnTeteNavigation rubriques={nav} numeroCourant={numero} />
         </Suspense>
+        <Banniere lang={lang} />
         <main id="contenu" className="flex-1">
           {children}
         </main>

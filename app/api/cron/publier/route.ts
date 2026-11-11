@@ -1,5 +1,5 @@
-// Publication des articles programmés. Appelée par Vercel Cron (vercel.json) avec l'en-tête
-// « Authorization: Bearer CRON_SECRET ».
+// Publication des articles programmés. Appelée avec l'en-tête « Authorization: Bearer CRON_SECRET » :
+// par Vercel Cron une fois par jour (vercel.json, offre Hobby) et par cron-job.org toutes les 10 minutes.
 import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 import { TAGS } from "@/lib/data";

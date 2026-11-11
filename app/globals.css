@@ -226,3 +226,15 @@ body {
 .scrollbar-fine {
   scrollbar-width: thin;
 }
+
+/* Bannière partenaire : reflet doré au survol */
+@keyframes banniere-reflet {
+  from { transform: translateX(0) skewX(-12deg); opacity: 1; }
+  to { transform: translateX(600%) skewX(-12deg); opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .banniere:hover .banniere-reflet,
+  .banniere:focus-visible .banniere-reflet {
+    animation: banniere-reflet 1.1s ease-out;
+  }
+}

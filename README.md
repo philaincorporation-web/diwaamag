@@ -129,12 +129,18 @@ Les 18 premiers articles proviennent du **DIWA MAG — Le magazine de la femme d
 ## 9. Mise en ligne (Vercel + OVH + Neon)
 
 1. Créer le projet **Neon** (région Francfort) ; copier l'URL *pooled* dans `DATABASE_URL` et l'URL directe dans `DIRECT_URL`.
-2. Créer le compte **Vercel** au nom de Digiewomen School (offre Pro recommandée : elle permet aussi la tâche cron toutes les 10 minutes de `vercel.json` ; en offre Hobby, réduire à une exécution quotidienne), relier le dépôt GitHub.
+2. Créer le compte **Vercel** au nom de Digiewomen School et relier le dépôt GitHub. `vercel.json` déclare une tâche cron **quotidienne** (5 h UTC, soit 6 h à Libreville), seule fréquence autorisée par l'offre gratuite Hobby.
 3. Renseigner les variables d'environnement (§4) dans *Settings → Environment Variables*. Le script `build` applique automatiquement les migrations.
 4. Lancer une fois le seed depuis un poste : `DATABASE_URL=… DIRECT_URL=… npm run db:seed`.
 5. Domaine : *Settings → Domains* dans Vercel, puis dans la zone DNS **OVH** : enregistrement A du domaine racine vers l'IP fournie par Vercel, CNAME `www` vers `cname.vercel-dns.com` (ou CNAME du sous-domaine) ; supprimer les anciens enregistrements de parking ; attendre la propagation (HTTPS automatique).
 6. E-mails : vérifier le domaine dans Resend et créer les enregistrements **SPF, DKIM et DMARC** dans la zone OVH.
-7. Environnements : `main` → production ; `develop` → préproduction (aperçu Vercel protégé par mot de passe).
+7. **Publication programmée toutes les 10 minutes (gratuit)** : la tâche quotidienne de Vercel ne suffit pas pour publier un article programmé à l'heure près. Créer un compte gratuit sur **cron-job.org** puis *Create cronjob* :
+   - URL : `https://<domaine>/api/cron/publier`, méthode GET ;
+   - planification : toutes les 10 minutes ;
+   - *Advanced → Headers* : `Authorization` = `Bearer <valeur de CRON_SECRET>` (le même secret que dans Vercel) ;
+   - activer les alertes d'échec par e-mail.
+   La réponse attendue est `{"publies":0}` (ou le nombre d'articles publiés) ; une réponse 401 signifie que l'en-tête ou le secret est incorrect. Le jour où le compte passe en offre Pro, on peut remettre `*/10 * * * *` dans `vercel.json` et supprimer la tâche cron-job.org.
+8. Environnements : `main` → production ; `develop` → préproduction (aperçu Vercel protégé par mot de passe).
 
 ## 10. Sécurité
 

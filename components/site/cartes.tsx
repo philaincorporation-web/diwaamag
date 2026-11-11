@@ -178,16 +178,11 @@ export function CarteHorizontale({ article, lang, sizes = "(min-width: 640px) 28
   );
 }
 
-/** Ligne compacte numérotée ou avec vignette (barre latérale). */
-export function CarteMini({ article, lang, rang }: { article: CarteArticle; lang: Langue; rang?: number }) {
+/** Ligne compacte avec vignette (barre latérale). */
+export function CarteMini({ article, lang }: { article: CarteArticle; lang: Langue }) {
   return (
     <article className="group grid grid-cols-[88px_minmax(0,1fr)] items-start gap-3">
-      <div className="relative">
-        <Visuel article={article} sizes="88px" lang={lang} className="aspect-square" />
-        {rang !== undefined && (
-          <span className="absolute -left-2 -top-2 grid size-7 place-items-center rounded-full bg-or font-titre text-sm font-bold text-noir ring-2 ring-fond">{rang}</span>
-        )}
-      </div>
+      <Visuel article={article} sizes="88px" lang={lang} className="aspect-square" />
       <div className="min-w-0">
         <p className="font-titre text-[11px] uppercase tracking-[0.14em] text-or-fonce">{article.rubrique.nom}</p>
         <h3 className="mt-1 line-clamp-3 text-[15px] font-semibold leading-snug text-encre">
@@ -195,6 +190,31 @@ export function CarteMini({ article, lang, rang }: { article: CarteArticle; lang
         </h3>
         <p className="mt-1 text-[11px] text-texte-doux">{formatDate(lang, article.datePublication)}</p>
       </div>
+    </article>
+  );
+}
+
+/** Ligne de classement façon presse écrite : grand chiffre détouré, titre, petite vignette à droite. */
+export function CarteClassement({ article, lang, rang }: { article: CarteArticle; lang: Langue; rang: number }) {
+  return (
+    <article className="group grid grid-cols-[2.75rem_minmax(0,1fr)_64px] items-start gap-3 py-4">
+      <span
+        aria-hidden
+        className="font-titre text-[2.6rem] font-bold leading-[0.85] text-transparent transition-colors duration-300 [-webkit-text-stroke:1.5px_var(--or-fonce)] group-hover:text-or"
+      >
+        {String(rang).padStart(2, "0")}
+      </span>
+      <div className="min-w-0">
+        <p className="font-titre text-[11px] uppercase tracking-[0.14em] text-or-fonce">{article.rubrique.nom}</p>
+        <h3 className="mt-1 line-clamp-3 text-[15px] font-semibold leading-snug text-encre">
+          <Link href={lien(lang, `/article/${article.slug}`)} className="hover:text-or-fonce">
+            <span className="sr-only">{rang}. </span>
+            {article.titre}
+          </Link>
+        </h3>
+        <p className="mt-1 text-[11px] text-texte-doux">{formatDate(lang, article.datePublication)}</p>
+      </div>
+      <Visuel article={article} sizes="64px" lang={lang} className="aspect-square" />
     </article>
   );
 }

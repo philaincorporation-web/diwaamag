@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useValeurNavigateur } from "@/lib/hooks";
 import { useLangue } from "@/components/i18n/contexte";
@@ -73,7 +73,7 @@ export function Elevation({ children, className }: { children: React.ReactNode; 
   );
 }
 
-type Titre = { titre: string; slug: string };
+type Titre = { titre: string; slug: string; rubrique: string };
 
 /** Bandeau défilant des derniers titres. */
 export function BandeauDefilant({ titres }: { titres: Titre[] }) {
@@ -84,14 +84,14 @@ export function BandeauDefilant({ titres }: { titres: Titre[] }) {
     <div className="border-b border-ligne bg-fond">
       <div className="mx-auto flex h-11 max-w-7xl items-center gap-4 px-4">
         <span className="flex shrink-0 items-center gap-1.5 bg-or px-3 py-1.5 font-titre text-xs font-semibold uppercase tracking-[0.16em] text-noir">
-          <Zap className="size-3.5" aria-hidden /> {dico.aLaUne}
+          {dico.aLaUne}
         </span>
         <div className="relative min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_4%,#000_96%,transparent)]">
-          <ul className="ticker-piste flex w-max gap-10">
+          <ul className="ticker-piste flex w-max">
             {liste.map((t, i) => (
-              <li key={`${t.slug}-${i}`} aria-hidden={i >= titres.length} className="whitespace-nowrap text-sm font-medium">
+              <li key={`${t.slug}-${i}`} aria-hidden={i >= titres.length} className="whitespace-nowrap border-r border-ligne px-6 text-sm font-medium">
                 <Link href={lien(lang, `/article/${t.slug}`)} tabIndex={i >= titres.length ? -1 : undefined} className="hover:text-or-fonce">
-                  <span className="mr-3 inline-block size-1.5 -translate-y-0.5 rotate-45 bg-or" aria-hidden />
+                  <span className="mr-2.5 font-titre text-xs uppercase tracking-[0.14em] text-or-fonce">{t.rubrique}</span>
                   {t.titre}
                 </Link>
               </li>

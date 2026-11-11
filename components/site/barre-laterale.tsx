@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CloudSun, Mail } from "lucide-react";
 import { getMotsClesPopulaires, getNumeros, getPlusLus } from "@/lib/data";
 import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
-import { CarteMini, TitreBloc } from "@/components/site/cartes";
+import { CarteClassement, TitreBloc } from "@/components/site/cartes";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
 import { DetailMeteo } from "@/components/site/meteo";
 
@@ -14,10 +14,10 @@ export async function BlocPlusLus({ lang }: { lang: Langue }) {
       <TitreBloc as="h2" lang={lang}>
         <span id="plus-lus">{dico(lang).lesPlusLus}</span>
       </TitreBloc>
-      <ol className="space-y-5">
+      <ol className="-mt-4 divide-y divide-ligne">
         {articles.map((a, i) => (
           <li key={a.id}>
-            <CarteMini article={a} lang={lang} rang={i + 1} />
+            <CarteClassement article={a} lang={lang} rang={i + 1} />
           </li>
         ))}
       </ol>

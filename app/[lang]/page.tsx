@@ -41,7 +41,7 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
 
   return (
     <>
-      <BandeauDefilant titres={toutesDernieres.slice(0, 8).map((a) => ({ titre: a.titre, slug: a.slug }))} />
+      <BandeauDefilant titres={toutesDernieres.slice(0, 8).map((a) => ({ titre: a.titre, slug: a.slug, rubrique: a.rubrique.nom }))} />
 
       {/* 1. À la une */}
       <section className="mx-auto max-w-7xl px-4 pt-6" aria-label={t.aLaUne}>
