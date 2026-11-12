@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto";
 import { updateTag } from "next/cache";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { prisma } from "@/lib/db";
+import { OPTIONS_TRANSACTION, prisma } from "@/lib/db";
 import { TAGS } from "@/lib/data";
 import { exigerAdmin, exigerSuperAdmin, journaliser } from "@/lib/admin";
 import { slugify } from "@/lib/content";
@@ -187,7 +187,7 @@ export async function enregistrerNumero(_: Etat, formData: FormData): Promise<Et
       await tx.numeroArticle.deleteMany({ where: { numeroId: n.id } });
       await tx.numeroArticle.createMany({ data: ids.map((articleId, ordre) => ({ numeroId: n.id, articleId, ordre })) });
       await journaliser(admin.id, d.id ? "MODIFICATION" : "CREATION", "Numero", n.id, { titre: n.titre });
-    });
+    }, OPTIONS_TRANSACTION);
   } catch {
     return { ok: false, message: "Un numéro porte déjà ce titre." };
   }

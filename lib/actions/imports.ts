@@ -4,7 +4,8 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { prisma } from "@/lib/db";
+import { OPTIONS_TRANSACTION, prisma } from "@/lib/db";
+import { lierMotsCles } from "@/lib/mots-cles";
 import { exigerAdmin, journaliser } from "@/lib/admin";
 import { slugify, tempsDeLecture } from "@/lib/content";
 import type { Prisma } from "@/lib/generated/prisma/client";
@@ -106,31 +107,24 @@ export async function creerBrouillonDepuisImport(importId: string, donnees: Revu
         auteur: { connect: { id: admin.id } },
       },
     });
-    for (const nom of noms) {
-      const s = slugify(nom);
-      if (!s) continue;
-      const mc = await tx.motCle.upsert({ where: { slug: s }, update: {}, create: { nom, slug: s } });
-      await tx.articleMotCle.upsert({ where: { articleId_motCleId: { articleId: a.id, motCleId: mc.id } }, update: {}, create: { articleId: a.id, motCleId: mc.id } });
-    }
+    await lierMotsCles(tx, a.id, noms);
     await tx.articleVersion.create({ data: { articleId: a.id, titre: a.titre, contenu: a.contenu as Prisma.InputJsonValue, modifieParId: admin.id } });
-    // Les images retenues rejoignent la médiathèque partagée.
-    for (const img of retenues.values()) {
-      await tx.media.create({
-        data: {
-          url: img.url,
-          publicId: img.publicId,
-          type: "IMAGE",
-          legende: texteLegende(img.legende, img.credit) || null,
-          texteAlternatif: img.alt,
-          largeur: img.largeur,
-          hauteur: img.hauteur,
-          ajouteParId: admin.id,
-        },
-      });
-    }
+    // Les images retenues rejoignent la médiathèque partagée (une seule requête).
+    await tx.media.createMany({
+      data: [...retenues.values()].map((img) => ({
+        url: img.url,
+        publicId: img.publicId,
+        type: "IMAGE" as const,
+        legende: texteLegende(img.legende, img.credit) || null,
+        texteAlternatif: img.alt,
+        largeur: img.largeur,
+        hauteur: img.hauteur,
+        ajouteParId: admin.id,
+      })),
+    });
     await tx.importPdf.update({ where: { id: importId }, data: { articleId: a.id } });
     return a;
-  }).catch((e) => {
+  }, OPTIONS_TRANSACTION).catch((e) => {
     if (e instanceof Error && e.message === "IMPORT_DEJA_VALIDE") return null;
     throw e;
   });

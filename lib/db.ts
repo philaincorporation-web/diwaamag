@@ -29,3 +29,9 @@ function getClient() {
 }
 
 export const prisma = getClient();
+
+/**
+ * Délais des transactions interactives. La base (Neon) est à Francfort : chaque requête coûte un
+ * aller-retour réseau, la limite par défaut de Prisma (5 s) est trop juste pour un article complet.
+ */
+export const OPTIONS_TRANSACTION = { maxWait: 10_000, timeout: 20_000 } as const;

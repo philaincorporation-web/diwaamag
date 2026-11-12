@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { z } from "zod";
-import { prisma } from "@/lib/db";
+import { OPTIONS_TRANSACTION, prisma } from "@/lib/db";
+import { lierMotsCles } from "@/lib/mots-cles";
 import { TAGS } from "@/lib/data";
 import { exigerAdmin, exigerSuperAdmin, journaliser } from "@/lib/admin";
 import { slugify, tempsDeLecture, type TiptapDoc } from "@/lib/content";
@@ -126,17 +127,11 @@ export async function enregistrerArticle(_: EtatArticle, formData: FormData): Pr
       const max = await tx.article.aggregate({ _max: { ordreUne: true }, where: { aLaUne: true } });
       await tx.article.update({ where: { id: a.id }, data: { ordreUne: (max._max.ordreUne ?? 0) + 1 } });
     }
-    await tx.articleMotCle.deleteMany({ where: { articleId: a.id } });
-    for (const nom of nomsMotsCles) {
-      const s = slugify(nom);
-      if (!s) continue;
-      const mc = await tx.motCle.upsert({ where: { slug: s }, update: {}, create: { nom, slug: s } });
-      await tx.articleMotCle.create({ data: { articleId: a.id, motCleId: mc.id } });
-    }
+    await lierMotsCles(tx, a.id, nomsMotsCles);
     // Chaque enregistrement crée une version (règle de gestion 8.1).
     await tx.articleVersion.create({ data: { articleId: a.id, titre: a.titre, contenu: a.contenu as Prisma.InputJsonValue, modifieParId: admin.id } });
     return a;
-  });
+  }, OPTIONS_TRANSACTION);
 
   const action = !existant ? "CREATION" : premierePublication ? "PUBLICATION" : statut === "PROGRAMME" ? "PROGRAMMATION" : "MODIFICATION";
   await journaliser(admin.id, action, "Article", article.id, { titre: article.titre, statut });
