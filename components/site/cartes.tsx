@@ -5,6 +5,7 @@ import { Clock, PlayCircle } from "lucide-react";
 import type { CarteArticle } from "@/lib/data";
 import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { cn } from "@/lib/cn";
+import { imageOptimisable } from "@/lib/images";
 
 type Rubrique = CarteArticle["rubrique"];
 
@@ -62,8 +63,7 @@ function Visuel({ article, sizes, className, prioritaire, lang }: { article: Car
   return (
     <div className={cn(className?.includes("absolute") ? "" : "relative", "overflow-hidden bg-fond-2", className)}>
       {article.imageUneUrl ? (
-        <Image
-          src={article.imageUneUrl}
+        <Image src={article.imageUneUrl} unoptimized={!imageOptimisable(article.imageUneUrl)}
           alt={article.imageUneAlt || article.titre}
           fill
           sizes={sizes}

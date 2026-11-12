@@ -9,6 +9,7 @@ import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
 import { CarteHorizontale } from "@/components/site/cartes";
 import { SqueletteListe } from "@/components/site/liste";
 import { Apparition } from "@/components/site/animations";
+import { imageOptimisable } from "@/lib/images";
 
 export async function generateStaticParams() {
   const numeros = await getNumeros("fr");
@@ -42,7 +43,7 @@ async function Contenu({ params }: { params: PageProps<"/[lang]/numeros/[slug]">
       <header className="bg-noir text-white">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 md:grid-cols-[300px_1fr]">
           <div className="relative mx-auto aspect-[3/4] w-56 shadow-[0_30px_60px_-20px_rgba(205,164,14,0.45)] md:w-full">
-            <Image src={n.couvertureUrl} alt={`${t.couverture} — ${n.titre}`} fill preload sizes="300px" className="object-cover" />
+            <Image src={n.couvertureUrl} unoptimized={!imageOptimisable(n.couvertureUrl)} alt={`${t.couverture} — ${n.titre}`} fill preload sizes="300px" className="object-cover" />
           </div>
           <div>
             <p className="font-titre text-sm uppercase tracking-[0.3em] text-or">{formatDate(lang, n.mois, "mois")}</p>

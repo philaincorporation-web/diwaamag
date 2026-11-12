@@ -10,6 +10,7 @@ import { EditeurRiche } from "@/components/admin/editeur-riche";
 import { SelecteurMedia, type MediaLeger } from "@/components/admin/mediatheque";
 import { classesBouton, classesChamp, Message } from "@/components/admin/ui";
 import { cn } from "@/lib/cn";
+import { imageOptimisable } from "@/lib/images";
 
 export type ArticleFormulaire = {
   id?: string;
@@ -254,7 +255,7 @@ export function FormulaireArticle({
           <p className="text-sm font-semibold">Image de Une <span className="text-danger" aria-hidden>*</span></p>
           {image.url ? (
             <div className="relative aspect-[16/10] overflow-hidden bg-fond-2">
-              <Image src={image.url} alt={image.alt || "Aperçu de l'image de Une"} fill sizes="320px" className="object-cover object-top" />
+              <Image src={image.url} unoptimized={!imageOptimisable(image.url)} alt={image.alt || "Aperçu de l'image de Une"} fill sizes="320px" className="object-cover object-top" />
             </div>
           ) : (
             <div className="grid aspect-[16/10] place-items-center bg-fond-2 text-xs text-texte-doux">Aucune image</div>

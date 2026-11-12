@@ -9,6 +9,7 @@ import { CarteHorizontale, CarteMini, CarteSuperposee, CarteVerticale, TitreBloc
 import { Apparition, BandeauDefilant, CarrouselUne, OngletsRubriques } from "@/components/site/animations";
 import { BarreLaterale } from "@/components/site/barre-laterale";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
+import { imageOptimisable } from "@/lib/images";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
   const lang = langueParams((await params).lang);
@@ -188,7 +189,7 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
               <Apparition key={n.id} delai={i * 0.1} className="w-44 shrink-0 sm:w-52">
                 <Link href={lien(lang, `/numeros/${n.slug}`)} className="group block">
                   <div className="relative aspect-[3/4] overflow-hidden shadow-[0_22px_40px_-16px_rgba(0,0,0,0.55)] transition-transform duration-500 group-hover:-translate-y-2 group-hover:rotate-[-1deg]">
-                    <Image src={n.couvertureUrl} alt={`${t.couverture} — ${n.titre}`} fill sizes="208px" className="object-cover" />
+                    <Image src={n.couvertureUrl} unoptimized={!imageOptimisable(n.couvertureUrl)} alt={`${t.couverture} — ${n.titre}`} fill sizes="208px" className="object-cover" />
                   </div>
                   <p className="mt-3 font-titre text-sm uppercase tracking-[0.14em]">{formatDate(lang, n.mois, "mois")}</p>
                 </Link>

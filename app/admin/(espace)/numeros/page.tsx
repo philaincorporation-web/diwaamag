@@ -10,6 +10,7 @@ import { BoutonAction } from "@/components/admin/ui";
 import { classesBouton } from "@/components/admin/styles";
 import { FormulaireNumero, NumeroEditable } from "@/components/admin/formulaires";
 import { exigerAdmin } from "@/lib/admin";
+import { imageOptimisable } from "@/lib/images";
 
 // Page liée à la session : rendue à la demande (navigation bloquante assumée).
 export const instant = false;
@@ -52,7 +53,7 @@ export default async function PageNumeros() {
           >
             <div className="flex gap-5 border border-ligne bg-fond p-5">
               <div className="relative aspect-[3/4] w-24 shrink-0 overflow-hidden bg-fond-2">
-                <Image src={n.couvertureUrl} alt={`Couverture — ${n.titre}`} fill sizes="96px" className="object-cover" />
+                <Image src={n.couvertureUrl} unoptimized={!imageOptimisable(n.couvertureUrl)} alt={`Couverture — ${n.titre}`} fill sizes="96px" className="object-cover" />
               </div>
               <div className="min-w-0 flex-1 pr-12">
                 <p className="font-titre text-xs uppercase tracking-[0.16em] text-or-fonce">{moisAnnee(n.mois)} · {n.publie ? "Publié" : "Non publié"}</p>

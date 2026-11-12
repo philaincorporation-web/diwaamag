@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Fragment } from "react";
 import type { TiptapDoc, TiptapMark, TiptapNode } from "@/lib/content";
 import { slugify, texteBrut } from "@/lib/content";
+import { imageOptimisable } from "@/lib/images";
 
 function lienSur(href: unknown): string | null {
   if (typeof href !== "string") return null;
@@ -107,7 +108,7 @@ function Noeud({ n }: { n: TiptapNode }): React.ReactNode {
       const legende = n.attrs?.title ? String(n.attrs.title) : null;
       return (
         <figure>
-          <Image src={src} alt={alt} width={1200} height={800} sizes="(min-width: 768px) 720px, 100vw" className="h-auto w-full" />
+          <Image src={src} unoptimized={!imageOptimisable(src)} alt={alt} width={1200} height={800} sizes="(min-width: 768px) 720px, 100vw" className="h-auto w-full" />
           {legende && <figcaption className="mt-2 text-center font-sans text-sm text-texte-doux">{legende}</figcaption>}
         </figure>
       );

@@ -9,6 +9,7 @@ import { cn } from "@/lib/cn";
 import { useValeurNavigateur } from "@/lib/hooks";
 import { useLangue } from "@/components/i18n/contexte";
 import { lien } from "@/lib/i18n";
+import { imageOptimisable } from "@/lib/images";
 
 /**
  * Apparition progressive au défilement.
@@ -152,7 +153,7 @@ export function CarrouselUne({ diapos }: { diapos: Diapo[] }) {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         >
           {d.imageUneUrl && (
-            <Image src={d.imageUneUrl} alt={d.imageUneAlt || d.titre} fill preload={index === 0} sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover object-top" />
+            <Image src={d.imageUneUrl} unoptimized={!imageOptimisable(d.imageUneUrl)} alt={d.imageUneAlt || d.titre} fill preload={index === 0} sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover object-top" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/5" />
         </motion.div>

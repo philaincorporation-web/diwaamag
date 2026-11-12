@@ -14,6 +14,7 @@ import { LecteurVideo, TexteRiche } from "@/components/site/texte-riche";
 import { BoutonRepondre, BoutonSignaler, BoutonsPartage, CompteurVues, FormulaireCommentaire, ProgressionLecture } from "@/components/site/interactifs";
 import { BlocNewsletter, BlocPlusLus } from "@/components/site/barre-laterale";
 import { Apparition } from "@/components/site/animations";
+import { imageOptimisable } from "@/lib/images";
 
 export async function generateStaticParams() {
   const { articles } = await getIndexPublic();
@@ -150,7 +151,7 @@ async function Article({ params }: { params: PageProps<"/[lang]/article/[slug]">
             a.imageUneUrl && (
               <figure>
                 <div className="relative aspect-[16/9] overflow-hidden bg-fond-2">
-                  <Image src={a.imageUneUrl} alt={a.imageUneAlt || a.titre} fill preload sizes="(min-width: 1024px) 1024px, 100vw" className="object-cover object-top" />
+                  <Image src={a.imageUneUrl} unoptimized={!imageOptimisable(a.imageUneUrl)} alt={a.imageUneAlt || a.titre} fill preload sizes="(min-width: 1024px) 1024px, 100vw" className="object-cover object-top" />
                 </div>
                 {a.imageUneAlt && <figcaption className="mt-2 text-xs text-texte-doux">{a.imageUneAlt}</figcaption>}
               </figure>

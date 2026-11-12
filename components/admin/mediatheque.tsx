@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { FileText, ImagePlus, Loader2, Upload, Video, X } from "lucide-react";
 import { classesBouton, classesChamp } from "@/components/admin/ui";
 import { cn } from "@/lib/cn";
+import { imageOptimisable } from "@/lib/images";
 
 export type MediaLeger = { id: string; url: string; type: "IMAGE" | "VIDEO" | "PDF"; texteAlternatif: string; legende: string | null };
 
@@ -61,7 +62,7 @@ export function Televersement({ onTermine, accept = "image/*,video/mp4,video/web
 }
 
 function Vignette({ m }: { m: MediaLeger }) {
-  if (m.type === "IMAGE") return <Image src={m.url} alt={m.texteAlternatif} fill sizes="160px" className="object-cover" />;
+  if (m.type === "IMAGE") return <Image src={m.url} unoptimized={!imageOptimisable(m.url)} alt={m.texteAlternatif} fill sizes="160px" className="object-cover" />;
   const Icone = m.type === "VIDEO" ? Video : FileText;
   return (
     <div className="grid size-full place-items-center bg-noir text-or">

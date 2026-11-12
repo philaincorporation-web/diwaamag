@@ -6,6 +6,7 @@ import { dico, formatDate, lien } from "@/lib/i18n";
 import { alternates, langueParams } from "@/lib/seo";
 import { EnTetePage } from "@/components/site/liste";
 import { Apparition } from "@/components/site/animations";
+import { imageOptimisable } from "@/lib/images";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/numeros">): Promise<Metadata> {
   const lang = langueParams((await params).lang);
@@ -29,7 +30,7 @@ export default async function PageNumeros({ params }: PageProps<"/[lang]/numeros
               <Apparition as="li" key={n.id} delai={(i % 4) * 0.06}>
                 <Link href={lien(lang, `/numeros/${n.slug}`)} className="group block">
                   <div className="relative aspect-[3/4] overflow-hidden shadow-[0_22px_40px_-18px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:-translate-y-2">
-                    <Image src={n.couvertureUrl} alt={`${t.couverture} — ${n.titre}`} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
+                    <Image src={n.couvertureUrl} unoptimized={!imageOptimisable(n.couvertureUrl)} alt={`${t.couverture} — ${n.titre}`} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
                   </div>
                   <p className="mt-4 font-titre text-sm uppercase tracking-[0.16em] text-or-fonce">{formatDate(lang, n.mois, "mois")}</p>
                   <p className="mt-1 font-semibold leading-snug group-hover:text-or-fonce">{n.titre}</p>

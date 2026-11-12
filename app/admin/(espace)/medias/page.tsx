@@ -9,6 +9,7 @@ import { BoutonAction } from "@/components/admin/ui";
 import { EditionMedia } from "@/components/admin/formulaires";
 import { TeleversementPage } from "@/components/admin/televersement-page";
 import { exigerAdmin } from "@/lib/admin";
+import { imageOptimisable } from "@/lib/images";
 
 export const metadata: Metadata = { title: "Médias" };
 export const instant = false;
@@ -30,7 +31,7 @@ export default async function PageMedias() {
             <li key={m.id} className="border border-ligne bg-fond">
               <div className="relative aspect-[4/3] bg-fond-2">
                 {m.type === "IMAGE" ? (
-                  <Image src={m.url} alt={m.texteAlternatif} fill sizes="260px" className="object-cover" />
+                  <Image src={m.url} unoptimized={!imageOptimisable(m.url)} alt={m.texteAlternatif} fill sizes="260px" className="object-cover" />
                 ) : (
                   <a href={m.url} target="_blank" className="grid size-full place-items-center bg-noir text-or">
                     {m.type === "VIDEO" ? <Video className="size-10" aria-hidden /> : <FileText className="size-10" aria-hidden />}

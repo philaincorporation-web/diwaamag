@@ -8,6 +8,7 @@ import type { TiptapDoc } from "@/lib/content";
 import { TexteRiche } from "@/components/site/texte-riche";
 import { BadgeStatut } from "@/components/admin/presentation";
 import { exigerAdmin } from "@/lib/admin";
+import { imageOptimisable } from "@/lib/images";
 
 // Page liée à la session : rendue à la demande (navigation bloquante assumée).
 export const instant = false;
@@ -33,7 +34,7 @@ export default async function Apercu({ params }: PageProps<"/admin/articles/[id]
         <p className="mt-4 text-center text-sm text-texte-doux">Par {a.auteur.nom} · {a.datePublication ? dateHeure(a.datePublication) : "non publié"}</p>
         {a.imageUneUrl && (
           <div className="relative mt-8 aspect-[16/9] overflow-hidden bg-fond-2">
-            <Image src={a.imageUneUrl} alt={a.imageUneAlt || a.titre} fill sizes="768px" className="object-cover object-top" />
+            <Image src={a.imageUneUrl} unoptimized={!imageOptimisable(a.imageUneUrl)} alt={a.imageUneAlt || a.titre} fill sizes="768px" className="object-cover object-top" />
           </div>
         )}
         <div className="mt-10">

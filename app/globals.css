@@ -193,6 +193,14 @@ body {
   pointer-events: none;
 }
 
+.editeur .ProseMirror img {
+  cursor: pointer;
+}
+.editeur .ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
+}
+
 /* Défilement du bandeau « À la une ». */
 @keyframes defilement {
   from {

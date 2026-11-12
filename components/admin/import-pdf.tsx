@@ -12,6 +12,7 @@ import { TexteRiche } from "@/components/site/texte-riche";
 import { blocsVersTiptap, type ImageResolue } from "@/lib/import-pdf/conversion";
 import type { Bloc, ResultatImport } from "@/lib/import-pdf/schema";
 import { creerBrouillonDepuisImport, type Revue } from "@/lib/actions/imports";
+import { imageOptimisable } from "@/lib/images";
 
 const mo = (octets: number) => `${(octets / 1024 / 1024).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} Mo`;
 
@@ -484,7 +485,7 @@ export function RevueImport({ importId, resultat, rubriques, nbPages }: { import
                 {chapeau && <p className="mt-5 text-center font-serif text-lg text-texte-doux">{chapeau}</p>}
                 {imageUne && imagesResolues.get(imageUne) && (
                   <div className="relative mt-8 aspect-[16/9] overflow-hidden bg-fond-2">
-                    <Image src={imagesResolues.get(imageUne)!.url} alt={imagesResolues.get(imageUne)!.alt} fill sizes="768px" className="object-cover object-top" />
+                    <Image src={imagesResolues.get(imageUne)!.url} unoptimized={!imageOptimisable(imagesResolues.get(imageUne)!.url)} alt={imagesResolues.get(imageUne)!.alt} fill sizes="768px" className="object-cover object-top" />
                   </div>
                 )}
                 <div className="mt-8">
@@ -522,7 +523,7 @@ export function RevueImport({ importId, resultat, rubriques, nbPages }: { import
                         return (
                           <div className="flex items-center gap-3">
                             <div className="relative h-20 w-28 shrink-0 bg-fond-2">
-                              <Image src={img.url} alt="" fill sizes="112px" className="object-contain" />
+                              <Image src={img.url} unoptimized={!imageOptimisable(img.url)} alt="" fill sizes="112px" className="object-contain" />
                             </div>
                             <p className="text-sm text-texte-doux">
                               {choix[img.id]?.conserver ? choix[img.id].legende || "Sans légende" : "Image écartée : elle ne sera pas insérée."}
@@ -591,7 +592,7 @@ export function RevueImport({ importId, resultat, rubriques, nbPages }: { import
                     <li key={img.id} className={cn("grid gap-4 px-5 py-4 sm:grid-cols-[160px_minmax(0,1fr)]", !c.conserver && "opacity-60")}>
                       <div>
                         <div className="relative aspect-[4/3] bg-fond-2">
-                          <Image src={img.url} alt="" fill sizes="160px" className="object-contain" />
+                          <Image src={img.url} unoptimized={!imageOptimisable(img.url)} alt="" fill sizes="160px" className="object-contain" />
                         </div>
                         <p className="mt-1 text-xs text-texte-doux">
                           <button type="button" className="underline" onClick={() => setPage(img.page)}>

@@ -6,6 +6,7 @@ import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { CarteClassement, TitreBloc } from "@/components/site/cartes";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
 import { DetailMeteo } from "@/components/site/meteo";
+import { imageOptimisable } from "@/lib/images";
 
 export async function BlocPlusLus({ lang }: { lang: Langue }) {
   const articles = await getPlusLus(lang, 5);
@@ -62,7 +63,7 @@ export async function BlocNumero({ lang }: { lang: Langue }) {
       </TitreBloc>
       <Link href={lien(lang, `/numeros/${n.slug}`)} className="group block">
         <div className="relative aspect-[3/4] overflow-hidden shadow-[0_18px_40px_-18px_rgba(0,0,0,0.5)]">
-          <Image src={n.couvertureUrl} alt={`${dico(lang).couverture} — ${n.titre}`} fill sizes="320px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+          <Image src={n.couvertureUrl} unoptimized={!imageOptimisable(n.couvertureUrl)} alt={`${dico(lang).couverture} — ${n.titre}`} fill sizes="320px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
         </div>
         <p className="mt-3 font-titre text-xs uppercase tracking-[0.18em] text-or-fonce">{formatDate(lang, n.mois, "mois")}</p>
         <p className="mt-1 font-semibold leading-snug group-hover:text-or-fonce">{n.titre}</p>

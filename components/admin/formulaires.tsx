@@ -21,6 +21,7 @@ import { enregistrerUne } from "@/lib/actions/articles";
 import { SelecteurMedia, type MediaLeger } from "@/components/admin/mediatheque";
 import { classesBouton, classesChamp, Message } from "@/components/admin/ui";
 import { cn } from "@/lib/cn";
+import { imageOptimisable } from "@/lib/images";
 
 function Champ({ label, children, requis }: { label: string; children: React.ReactNode; requis?: boolean }) {
   return (
@@ -172,7 +173,7 @@ export function OrdreUne({ initiaux, disponibles }: { initiaux: ArticleUne[]; di
               <GripVertical className="size-4 shrink-0 text-texte-doux" aria-hidden />
               <span className="grid size-7 shrink-0 place-items-center bg-or font-titre text-sm">{i + 1}</span>
               <div className="relative size-12 shrink-0 overflow-hidden bg-fond-2">
-                {a.imageUneUrl && <Image src={a.imageUneUrl} alt="" fill sizes="48px" className="object-cover" />}
+                {a.imageUneUrl && <Image src={a.imageUneUrl} unoptimized={!imageOptimisable(a.imageUneUrl)} alt="" fill sizes="48px" className="object-cover" />}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-1 text-sm font-semibold">{a.titre}</p>
@@ -322,7 +323,7 @@ export function FormulaireNumero({
           <p className="text-sm font-semibold">Couverture <span className="text-danger" aria-hidden>*</span></p>
           {couverture && (
             <div className="relative aspect-[3/4] w-32 overflow-hidden bg-fond-2">
-              <Image src={couverture} alt="Couverture" fill sizes="128px" className="object-cover" />
+              <Image src={couverture} unoptimized={!imageOptimisable(couverture)} alt="Couverture" fill sizes="128px" className="object-cover" />
             </div>
           )}
           <SelecteurMedia medias={medias} libelle={couverture ? "Changer" : "Choisir la couverture"} onChoisir={(m) => setCouverture(m.url)} />
