@@ -72,6 +72,7 @@ model Admin {
   versions          ArticleVersion[]
   medias            Media[]
   journal           JournalActivite[]
+  importsPdf        ImportPdf[]
   creeLe            DateTime          @default(now())
   modifieLe         DateTime          @updatedAt
 }
@@ -105,6 +106,7 @@ model Article {
   traductions     ArticleTraduction[]
   commentaires    Commentaire[]
   numeros         NumeroArticle[]
+  importPdf       ImportPdf?
   creeLe          DateTime            @default(now())
   modifieLe       DateTime            @updatedAt
 
@@ -262,4 +264,48 @@ model JournalActivite {
 model Parametre {
   cle    String @id
   valeur Json
+}
+
+// ─── Importation intelligente de PDF ─────────────────────────────────────────
+// Suivi d'un import : fichier source (stocké 7 jours), état du traitement,
+// résultat de l'analyse à faire valider, et article brouillon créé à la fin.
+enum StatutImport {
+  TELEVERSE   // fichier en cours d'envoi / reçu
+  EN_ATTENTE  // traitement demandé
+  EN_COURS    // extraction et analyse en cours
+  A_VERIFIER  // résultat prêt, validation humaine requise
+  TERMINE     // brouillon créé
+  ECHEC
+  ANNULE
+}
+
+model ImportPdf {
+  id               String       @id @default(cuid())
+  statut           StatutImport @default(TELEVERSE)
+  nomFichier       String
+  taille           Int
+  empreinte        String       // SHA-256 du fichier : évite les imports en double
+  pages            Int?
+  stockage         String       // "cloudinary" ou "local" (développement)
+  sourceId         String       // public_id Cloudinary (privé) ou nom du fichier local
+  sourceSupprimee  Boolean      @default(false)
+  etape            String?      // libellé de l'étape en cours, affiché au rédacteur
+  progression      Int          @default(0)
+  resultat         Json?        // analyse validée (schéma strict) + images extraites
+  erreur           String?
+  tentatives       Int          @default(0)
+  modele           String?      // modèle d'IA utilisé, ou "heuristique"
+  tokensEntree     Int?
+  tokensSortie     Int?
+  debutTraitement  DateTime?
+  expireLe         DateTime     // date de suppression du PDF source
+  adminId          String
+  admin            Admin        @relation(fields: [adminId], references: [id])
+  articleId        String?      @unique
+  article          Article?     @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  creeLe           DateTime     @default(now())
+  modifieLe        DateTime     @updatedAt
+
+  @@index([empreinte])
+  @@index([statut])
 }

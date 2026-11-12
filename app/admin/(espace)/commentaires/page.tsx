@@ -11,6 +11,9 @@ import type { StatutCommentaire } from "@/lib/generated/prisma/client";
 import { cn } from "@/lib/cn";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Commentaires" };
 
 const FILTRES = [

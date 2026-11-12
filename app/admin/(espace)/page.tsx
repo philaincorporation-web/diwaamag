@@ -6,6 +6,9 @@ import { BadgeStatut, Carte, EnTeteAdmin, Vide } from "@/components/admin/presen
 import { classesBouton } from "@/components/admin/styles";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export default async function TableauDeBord({ searchParams }: PageProps<"/admin">) {
   await exigerAdmin(); // vérification d'accès (rend aussi la page dynamique)
   const { erreur } = await searchParams;

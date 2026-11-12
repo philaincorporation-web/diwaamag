@@ -6,6 +6,9 @@ import { dateHeure } from "@/lib/format";
 import { EnTeteAdmin, Vide } from "@/components/admin/presentation";
 import { classesBouton } from "@/components/admin/styles";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Journal d'activité" };
 
 const PAR_PAGE = 50;

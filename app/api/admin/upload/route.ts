@@ -1,10 +1,11 @@
 // Téléversement d'un média (image, vidéo, PDF) vers Cloudinary, puis enregistrement dans la bibliothèque (Media).
 // Sans configuration Cloudinary, et uniquement en développement, le fichier est écrit dans public/uploads.
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { prisma } from "@/lib/db";
 import { getAdmin, journaliser } from "@/lib/admin";
+import { cloudinaryActif, dossierCloudinary, envoyerCloudinary } from "@/lib/cloudinary";
 import type { TypeMedia } from "@/lib/generated/prisma/client";
 
 const TAILLE_MAX = 25 * 1024 * 1024;
@@ -18,25 +19,6 @@ const TYPES: Record<string, TypeMedia> = {
   "video/webm": "VIDEO",
   "application/pdf": "PDF",
 };
-
-async function versCloudinary(fichier: File) {
-  const cloud = process.env.CLOUDINARY_CLOUD_NAME!;
-  const cle = process.env.CLOUDINARY_API_KEY!;
-  const secret = process.env.CLOUDINARY_API_SECRET!;
-  const timestamp = Math.floor(Date.now() / 1000).toString();
-  const folder = process.env.CLOUDINARY_FOLDER || "diwaa-magazine";
-  const signature = createHash("sha1").update(`folder=${folder}&timestamp=${timestamp}${secret}`).digest("hex");
-  const corps = new FormData();
-  corps.set("file", fichier);
-  corps.set("api_key", cle);
-  corps.set("timestamp", timestamp);
-  corps.set("folder", folder);
-  corps.set("signature", signature);
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/auto/upload`, { method: "POST", body: corps });
-  if (!res.ok) throw new Error(`Cloudinary : ${res.status} ${await res.text()}`);
-  const d = (await res.json()) as { secure_url: string; public_id: string; width?: number; height?: number };
-  return { url: d.secure_url, publicId: d.public_id, largeur: d.width ?? null, hauteur: d.height ?? null };
-}
 
 async function versDossierLocal(fichier: File) {
   const ext = path.extname(fichier.name).toLowerCase().replace(/[^.a-z0-9]/g, "") || ".bin";
@@ -63,12 +45,12 @@ export async function POST(request: Request) {
     return Response.json({ erreur: "Le texte alternatif est obligatoire pour les images." }, { status: 400 });
   }
 
-  const cloudinary = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
+  const cloudinary = cloudinaryActif();
   if (!cloudinary && process.env.NODE_ENV === "production") {
     return Response.json({ erreur: "Stockage des médias non configuré (variables CLOUDINARY_*)." }, { status: 503 });
   }
   try {
-    const r = cloudinary ? await versCloudinary(fichier) : await versDossierLocal(fichier);
+    const r = cloudinary ? await envoyerCloudinary(fichier, { folder: dossierCloudinary() }) : await versDossierLocal(fichier);
     const media = await prisma.media.create({
       data: { ...r, type, legende, texteAlternatif: texteAlternatif || fichier.name, ajouteParId: admin.id },
     });

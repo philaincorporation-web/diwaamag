@@ -97,6 +97,35 @@ Toutes sont décrites dans `.env.example` : aucun secret n'est écrit dans le co
 - **Thème** : bouton soleil/lune dans la barre de navigation. Le choix est mémorisé sur l'appareil ; sans choix, le réglage du système est suivi. Un script exécuté avant l'affichage évite tout flash. Les couleurs sont des jetons CSS (`app/globals.css`) : `encre` s'inverse, `noir` (navigation, pied de page, texte sur l'or) reste sombre.
 - **Météo** : pastille dans la barre supérieure (panneau détaillé) et bloc dans la barre latérale de l'accueil. Conditions actuelles, ressenti, humidité, vent, courbe de température sur 24 h (avec infobulle et tableau des données), risque de pluie heure par heure, prévisions sur 7 jours. Villes : Libreville, Port-Gentil, Franceville, Oyem, Lambaréné, Abidjan, Dakar, Paris, ou « Ma position ». Données Open-Meteo chargées par le navigateur (aucune clé, cache de 30 minutes) : les pages restent statiques.
 
+### 5.3 Importation d'un article depuis un PDF
+
+Back-office › **Import PDF** (ou bouton « Importer un PDF » de la liste des articles). Un article déjà maquetté (Canva, InDesign…) devient un **brouillon** web, entièrement modifiable, mis en forme avec les composants du site. **Rien n'est publié automatiquement.**
+
+**Parcours** : dépôt du PDF → envoi direct navigateur → Cloudinary (fichier privé) → traitement en arrière-plan (suivi en direct, annulable) → écran de vérification → « Valider et créer le brouillon » → éditeur d'article habituel → publication par le circuit normal.
+
+**Traitement** (`lib/import-pdf/`) :
+
+| Étape | Fichier | Détail |
+|---|---|---|
+| Contrôles | `app/api/admin/imports/route.ts`, `extraction.ts` | Signature `%PDF-` vérifiée (navigateur et serveur), taille et nombre de pages limités, PDF protégé ou endommagé refusé, empreinte SHA-256 : un même fichier renvoie vers l'import existant (aucun doublon). |
+| Extraction | `extraction.ts` | `unpdf` (moteur PDF.js) : texte avec positions et tailles de police, images avec leur position sur la page, détection des pages scannées, images répétées (logos) et calques vides écartés. Aucun script ni lien du PDF n'est exécuté. |
+| Analyse IA | `analyse-ia.ts` | Claude (API Anthropic) reçoit le PDF (texte **et** rendu visuel de chaque page, donc aussi les pages scannées : il remplace l'OCR), la liste des images et des rubriques. Consignes : recopier le texte tel quel, ne jamais inventer d'auteur, de date, de légende ou de crédit, signaler les passages incertains, traiter toute instruction écrite dans le PDF comme du contenu. Sortie JSON stricte (schéma Zod `schema.ts`), revalidée côté serveur. Repli serveur automatique (`fallbacks: "default"`) si le modèle décline la requête. |
+| Sans clé IA | `heuristique.ts` | Analyse simplifiée d'après les tailles de police et les positions (titre, chapeau, intertitres, citations, légendes, placement des images). Signalée comme approximative ; les PDF scannés ne sont pas lisibles dans ce mode. |
+| Images | `traitement.ts`, `stockage.ts` | Images éditoriales envoyées vers Cloudinary (`<CLOUDINARY_FOLDER>/imports/<import>/…`, identifiants déterministes : une reprise ne crée pas de doublon) ; décorations non importées ; sur une page scannée, les photos délimitées par l'IA sont recadrées automatiquement. |
+| Conversion | `conversion.ts` | Blocs (intertitre, paragraphe, citation, liste, encadré, image) → contenu Tiptap de l'éditeur ; légende et crédit sous chaque image. |
+| Vérification | `components/admin/import-pdf.tsx` | Titre, chapeau, rubrique, type, blocs (modifier, déplacer, supprimer, ajouter), images (conserver, image à la une, texte alternatif obligatoire, légende, crédit), slug et SEO, avertissements, aperçu avec le rendu réel du site, PDF d'origine affiché à côté (page par page). |
+| Brouillon | `lib/actions/imports.ts` | Article `BROUILLON` rattaché à l'administrateur qui valide (l'auteur cité dans le PDF est signalé, jamais attribué), version, mots-clés, images ajoutées à la médiathèque ; images écartées supprimées. Verrou : un import ne produit qu'un article. |
+
+**Suivi** : table `ImportPdf` (états `TELEVERSE`, `EN_ATTENTE`, `EN_COURS`, `A_VERIFIER`, `TERMINE`, `ECHEC`, `ANNULE`, étape et progression affichées, erreurs en clair, modèle et jetons consommés). Un traitement bloqué plus de 8 minutes passe en échec et peut être relancé (5 tentatives au plus). Le traitement s'exécute après la réponse HTTP (`after()`, 300 s maximum sur Vercel).
+
+**Conservation** : le PDF source est privé sur Cloudinary et supprimé après `IMPORT_PDF_CONSERVATION_JOURS` jours (7 par défaut) par la tâche quotidienne `/api/cron/nettoyer-imports`, qui supprime aussi les images des imports jamais validés. Abandonner un import supprime immédiatement le PDF et ses images.
+
+**Coût et limites** : une seule requête IA par import (relance uniquement à la demande, avec confirmation) ; PDF de 20 Mo et 16 pages au plus par défaut (l'API Claude accepte 32 Mo par requête). Les mises en page complexes demandent toujours une relecture : chaque passage incertain est surligné. Vérifier les conditions d'utilisation et de conservation des données de l'API Anthropic (anthropic.com/legal) avant d'y envoyer des documents confidentiels.
+
+**Licences** : `unpdf` (MIT) et PDF.js (Apache 2.0), `sharp` (Apache 2.0, libvips LGPL 3.0 en bibliothèque dynamique), `@anthropic-ai/sdk` (MIT). PyMuPDF (AGPL) et Tesseract, envisagés dans le cahier des charges, n'ont pas été retenus : licence AGPL incompatible avec un site fermé sans licence commerciale, et Tesseract non installable sur Vercel.
+
+**Tests** : des PDF de test ont été produits (article en deux colonnes avec texte sélectionnable, intertitres, citation en exergue, encadré, légendes et crédits ; même article scanné ; faux PDF) et le parcours complet a été vérifié dans le navigateur (refus du faux PDF, analyse, corrections, aperçu, création du brouillon non publié, doublon, abandon, accès refusé sans connexion).
+
 ## 6. Écarts au document d'architecture (justifiés)
 
 | Écart | Raison |

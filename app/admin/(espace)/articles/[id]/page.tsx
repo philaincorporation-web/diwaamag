@@ -13,11 +13,14 @@ import { BoutonAction } from "@/components/admin/ui";
 import { classesBouton } from "@/components/admin/styles";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Modifier l'article" };
 
 export default async function ModifierArticle({ params, searchParams }: PageProps<"/admin/articles/[id]">) {
   await exigerAdmin(); // vérification d'accès (rend aussi la page dynamique)
-  const [{ id }, { cree, restaure }] = await Promise.all([params, searchParams]);
+  const [{ id }, { cree, restaure, import: importe }] = await Promise.all([params, searchParams]);
   const [article, d, versions] = await Promise.all([
     prisma.article.findUnique({
       where: { id },
@@ -56,6 +59,11 @@ export default async function ModifierArticle({ params, searchParams }: PageProp
         }
       />
       {cree && <p className="mb-6 border-l-4 border-succes bg-succes/10 px-3 py-2 text-sm font-medium text-succes">Article créé.</p>}
+      {importe && (
+        <p className="mb-6 border-l-4 border-succes bg-succes/10 px-3 py-2 text-sm font-medium text-succes">
+          Brouillon créé depuis le PDF. Relisez-le, vérifiez l&apos;aperçu, puis publiez-le quand il est prêt : rien n&apos;a été mis en ligne.
+        </p>
+      )}
       {article.statut === "CORBEILLE" && (
         <p className="mb-6 border-l-4 border-danger bg-danger/10 px-3 py-2 text-sm font-medium text-danger">
           Cet article est dans la corbeille. Restaurez-le depuis <Link href="/admin/articles?statut=CORBEILLE" className="underline">la liste</Link> pour le modifier.

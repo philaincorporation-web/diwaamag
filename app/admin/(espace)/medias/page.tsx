@@ -11,6 +11,7 @@ import { TeleversementPage } from "@/components/admin/televersement-page";
 import { exigerAdmin } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Médias" };
+export const instant = false;
 
 export default async function PageMedias() {
   await exigerAdmin(); // vérification d'accès (rend aussi la page dynamique)

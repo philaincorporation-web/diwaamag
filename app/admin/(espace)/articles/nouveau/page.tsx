@@ -5,6 +5,9 @@ import { EnTeteAdmin } from "@/components/admin/presentation";
 import { FormulaireArticle } from "@/components/admin/formulaire-article";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Nouvel article" };
 
 export default async function NouvelArticle() {

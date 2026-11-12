@@ -7,6 +7,9 @@ import { BoutonAction } from "@/components/admin/ui";
 import { FormulaireRubrique, LigneRubriqueEditable } from "@/components/admin/formulaires";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Rubriques" };
 
 export default async function PageRubriques() {

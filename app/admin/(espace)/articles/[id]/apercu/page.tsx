@@ -9,6 +9,9 @@ import { TexteRiche } from "@/components/site/texte-riche";
 import { BadgeStatut } from "@/components/admin/presentation";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Aperçu" };
 
 /** Aperçu d'un article (y compris brouillon) tel qu'il apparaîtra sur le site — étape de relecture. */

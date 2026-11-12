@@ -4,6 +4,9 @@ import { EnTeteAdmin } from "@/components/admin/presentation";
 import { OrdreUne } from "@/components/admin/formulaires";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "La Une" };
 
 export default async function PageUne() {

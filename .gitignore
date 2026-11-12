@@ -44,3 +44,7 @@ next-env.d.ts
 !.env.example
 /lib/generated
 /public/uploads
+
+# imports PDF stockés localement en développement
+/.imports/
+/public/uploads/

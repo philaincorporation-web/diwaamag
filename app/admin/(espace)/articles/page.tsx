@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Archive, ExternalLink, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Archive, ExternalLink, FileUp, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getAdmin } from "@/lib/admin";
 import { dateCourte, LIBELLES_STATUT, LIBELLES_TYPE } from "@/lib/format";
@@ -10,6 +10,9 @@ import { classesBouton, classesChamp } from "@/components/admin/styles";
 import type { Prisma, StatutArticle } from "@/lib/generated/prisma/client";
 import { cn } from "@/lib/cn";
 import { exigerAdmin } from "@/lib/admin";
+
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
 
 const STATUTS = ["PUBLIE", "PROGRAMME", "BROUILLON", "ARCHIVE", "CORBEILLE"] as const;
 
@@ -65,6 +68,9 @@ export default async function ListeArticlesAdmin({ searchParams }: PageProps<"/a
                 <Trash2 className="size-4" aria-hidden /> Vider la corbeille
               </BoutonAction>
             )}
+            <Link href="/admin/imports" className={classesBouton.secondaire}>
+              <FileUp className="size-4" aria-hidden /> Importer un PDF
+            </Link>
             <Link href="/admin/articles/nouveau" className={classesBouton.or}>
               <Plus className="size-4" aria-hidden /> Nouvel article
             </Link>

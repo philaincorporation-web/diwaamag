@@ -20,6 +20,7 @@ import {
   X,
   ExternalLink,
   KeyRound,
+  FileUp,
 } from "lucide-react";
 import { deconnexion } from "@/lib/actions/session";
 import { cn } from "@/lib/cn";
@@ -27,6 +28,7 @@ import { cn } from "@/lib/cn";
 const LIENS = [
   { href: "/admin", libelle: "Tableau de bord", icone: LayoutDashboard },
   { href: "/admin/articles", libelle: "Articles", icone: FileText },
+  { href: "/admin/imports", libelle: "Import PDF", icone: FileUp },
   { href: "/admin/une", libelle: "La Une", icone: Star },
   { href: "/admin/medias", libelle: "Médias", icone: ImageIcon },
   { href: "/admin/rubriques", libelle: "Rubriques", icone: FolderTree },

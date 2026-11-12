@@ -9,6 +9,9 @@ import { BoutonAction } from "@/components/admin/ui";
 import { FormulaireUtilisateur, UtilisateurEditable } from "@/components/admin/formulaires";
 import { cn } from "@/lib/cn";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Utilisateurs" };
 
 export default async function PageUtilisateurs() {

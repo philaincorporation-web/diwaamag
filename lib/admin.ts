@@ -3,6 +3,7 @@
 // la protection de /admin par le proxy n'est qu'une première barrière.
 import "server-only";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@/lib/generated/prisma/client";
@@ -11,6 +12,9 @@ export type AdminCourant = { id: string; nom: string; email: string; role: "SUPE
 
 /** Retourne l'administrateur connecté et actif, ou null. */
 export async function getAdmin(): Promise<AdminCourant | null> {
+  // Rendu à la demande obligatoire (session) : à déclarer avant auth(), qui génère des valeurs
+  // aléatoires — sinon Next.js signale « crypto.getRandomValues() while prerendering ».
+  await connection();
   const session = await auth();
   if (!session?.user?.id) return null;
   // Revalide en base : un compte désactivé perd l'accès immédiatement.

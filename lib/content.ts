@@ -47,7 +47,7 @@ export function intertitres(doc: TiptapDoc | null | undefined) {
     .map((n) => ({ niveau: Number(n.attrs?.level ?? 2), texte: texteBrut(n) }));
 }
 
-function inlineMarkdown(texte: string): TiptapNode[] {
+export function inlineMarkdown(texte: string): TiptapNode[] {
   // Gère **gras** et *italique* — suffisant pour l'import initial.
   const noeuds: TiptapNode[] = [];
   const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;

@@ -14,6 +14,9 @@ import { BoutonAction } from "@/components/admin/ui";
 import { classesBouton } from "@/components/admin/styles";
 import { FormulaireTraduction } from "@/components/admin/formulaire-traduction";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Version anglaise" };
 
 export default async function PageTraduction({ params }: PageProps<"/admin/articles/[id]/traduction">) {

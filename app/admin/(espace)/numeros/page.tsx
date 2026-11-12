@@ -11,6 +11,9 @@ import { classesBouton } from "@/components/admin/styles";
 import { FormulaireNumero, NumeroEditable } from "@/components/admin/formulaires";
 import { exigerAdmin } from "@/lib/admin";
 
+// Page liée à la session : rendue à la demande (navigation bloquante assumée).
+export const instant = false;
+
 export const metadata: Metadata = { title: "Numéros mensuels" };
 
 export default async function PageNumeros() {
