@@ -10,10 +10,10 @@ export function EnTetePage({ surtitre, titre, description }: { surtitre?: string
   return (
     <header className="relative overflow-hidden bg-noir text-white">
       <div className="absolute -right-24 -top-24 size-72 rounded-full border-[40px] border-or/15" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16">
+      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:py-16">
         {surtitre && <p className="font-titre text-sm uppercase tracking-[0.3em] text-or">{surtitre}</p>}
-        <h1 className="mt-2 font-titre text-4xl font-bold uppercase leading-none sm:text-6xl">{titre}</h1>
-        {description && <p className="mt-4 max-w-2xl text-white/75">{description}</p>}
+        <h1 className="mt-2 font-titre text-[1.9rem] font-bold uppercase leading-none sm:text-6xl">{titre}</h1>
+        {description && <p className="mt-3 max-w-2xl text-sm text-white/75 sm:mt-4 sm:text-base">{description}</p>}
       </div>
       <div className="h-1 bg-or" />
     </header>
@@ -27,7 +27,7 @@ export function ListeArticles({ articles, lang, miseEnAvant = true }: { articles
   return (
     <div>
       {premier && (
-        <div className="mb-10 h-[420px] sm:h-[480px]">
+        <div className="mb-8 h-[320px] sm:mb-10 sm:h-[480px]">
           <CarteSuperposee article={premier} lang={lang} prioritaire sizes="(min-width: 1024px) 800px, 100vw" />
         </div>
       )}

@@ -111,8 +111,8 @@ export function CarteSuperposee({
         <h3
           className={cn(
             "mt-3 font-titre font-semibold uppercase leading-[1.08] text-white",
-            taille === "grande" && "text-3xl sm:text-4xl lg:text-[2.75rem]",
-            taille === "moyenne" && "text-2xl",
+            taille === "grande" && "text-[1.55rem] sm:text-4xl lg:text-[2.75rem]",
+            taille === "moyenne" && "text-lg sm:text-2xl",
             taille === "petite" && "text-lg",
           )}
         >
@@ -147,7 +147,7 @@ export function CarteVerticale({
         <Visuel article={article} sizes={sizes} lang={lang} className="aspect-[16/10]" />
         <EtiquetteRubrique rubrique={article.rubrique} lang={lang} className="absolute bottom-0 left-0 z-10" />
       </div>
-      <h3 className={cn("mt-4 font-titre text-[1.375rem] font-semibold uppercase leading-[1.15]", sombre ? "text-white" : "text-encre")}>
+      <h3 className={cn("mt-3 font-titre text-lg font-semibold uppercase leading-[1.15] sm:mt-4 sm:text-[1.375rem]", sombre ? "text-white" : "text-encre")}>
         <Link
           href={lien(lang, `/article/${article.slug}`)}
           className="bg-[linear-gradient(var(--or),var(--or))] bg-[length:0%_2px] bg-left-bottom bg-no-repeat transition-[background-size] duration-500 hover:bg-[length:100%_2px]"
@@ -174,7 +174,7 @@ export function CarteHorizontale({ article, lang, sizes = "(min-width: 640px) 28
           <EtiquetteRubrique rubrique={article.rubrique} lang={lang} />
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-texte-doux">{dico(lang).types[article.type]}</span>
         </div>
-        <h3 className="mt-2 font-titre text-xl font-semibold uppercase leading-[1.15] text-encre sm:text-2xl">
+        <h3 className="mt-2 font-titre text-[1.0625rem] font-semibold uppercase leading-[1.15] text-encre sm:text-2xl">
           <Link href={href} className="hover:text-or-fonce">{article.titre}</Link>
         </h3>
         <p className="mt-2 hidden line-clamp-2 text-sm leading-relaxed text-texte-doux sm:block">{article.chapeau}</p>
@@ -242,7 +242,7 @@ export function TitreBloc({
 }) {
   return (
     <div className={cn("mb-6 flex items-end gap-4", className)}>
-      <Tag className={cn("titre-bloc flex-1 text-2xl font-semibold sm:text-[1.75rem]", sombre ? "text-white" : "text-encre")}>
+      <Tag className={cn("titre-bloc flex-1 text-xl font-semibold sm:text-[1.75rem]", sombre ? "text-white" : "text-encre")}>
         <span className="relative pl-4 before:absolute before:inset-y-0.5 before:left-0 before:w-1.5 before:bg-or">{children}</span>
       </Tag>
       {href && (

@@ -137,7 +137,7 @@ export function CarrouselUne({ diapos }: { diapos: Diapo[] }) {
     <section
       aria-roledescription={lang === "fr" ? "carrousel" : "carousel"}
       aria-label={dico.aLaUne}
-      className="relative h-[460px] overflow-hidden bg-noir sm:h-[540px]"
+      className="relative h-[380px] overflow-hidden bg-noir sm:h-[540px]"
       onMouseEnter={() => setPause(true)}
       onMouseLeave={() => setPause(false)}
       onFocusCapture={() => setPause(true)}
@@ -175,7 +175,7 @@ export function CarrouselUne({ diapos }: { diapos: Diapo[] }) {
             >
               {d.rubrique.nom}
             </Link>
-            <h2 className="mt-4 max-w-3xl font-titre text-3xl font-bold uppercase leading-[1.05] text-white sm:text-5xl">
+            <h2 className="mt-3 max-w-3xl font-titre text-[1.55rem] font-bold uppercase leading-[1.08] text-white sm:mt-4 sm:text-5xl">
               <Link href={lien(lang, `/article/${d.slug}`)} className="hover:text-or">{d.titre}</Link>
             </h2>
             <p className="mt-4 hidden max-w-2xl text-base text-white/85 sm:line-clamp-2">{d.chapeau}</p>

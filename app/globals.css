@@ -180,6 +180,33 @@ body {
   color: var(--or-fonce);
 }
 
+/* Petits écrans : texte plus compact, qui respire sans occuper tout l'écran. */
+@media (max-width: 639px) {
+  .corps-article {
+    font-size: 1.0625rem;
+    line-height: 1.68;
+  }
+  .corps-article > * + * {
+    margin-top: 1.1em;
+  }
+  .corps-article h2 {
+    font-size: 1.375rem;
+    margin-top: 1.7em;
+  }
+  .corps-article h3 {
+    font-size: 1.0625rem;
+    margin-top: 1.5em;
+  }
+  .corps-article blockquote {
+    font-size: 1.0625rem;
+    padding: 1em 1.1em 1em 1.25em;
+    margin: 1.6em 0;
+  }
+  .corps-article:not(.sans-lettrine) > p:first-of-type::first-letter {
+    font-size: 3.4em;
+  }
+}
+
 /* Éditeur Tiptap (back-office). */
 .editeur .ProseMirror {
   min-height: 420px;

@@ -64,7 +64,7 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
           </div>
           <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-1 lg:grid-rows-2">
             {aCote.map((a) => (
-              <div key={a.id} className="h-[260px] lg:h-auto">
+              <div key={a.id} className="h-[210px] sm:h-[260px] lg:h-auto">
                 <CarteSuperposee article={a} lang={lang} taille="moyenne" sizes="(min-width: 1024px) 33vw, 50vw" />
               </div>
             ))}
@@ -90,7 +90,7 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
       </div>
 
       {/* 3. Gabon, Afrique, Monde */}
-      <section className="mt-16 border-y border-ligne bg-fond-2 py-14" aria-label={t.actualitesParRegion}>
+      <section className="mt-10 border-y border-ligne bg-fond-2 py-10 sm:mt-16 sm:py-14" aria-label={t.actualitesParRegion}>
         <div className="mx-auto grid max-w-7xl gap-12 px-4 md:grid-cols-3 md:gap-8">
           <BlocRegion titre={nomRubrique("gabon")} slug="gabon" articles={gabon.articles} lang={lang} />
           <BlocRegion titre={nomRubrique("afrique")} slug="afrique" articles={afrique.articles} lang={lang} />
@@ -101,12 +101,12 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
       <Pub emplacement="ACCUEIL" className="mx-auto mt-12 max-w-7xl px-4" />
 
       {/* 4. Femmes du numérique */}
-      <section className="bg-noir py-16 text-white" aria-labelledby="femmes">
+      <section className="bg-noir py-10 text-white sm:py-16" aria-labelledby="femmes">
         <div className="mx-auto max-w-7xl px-4">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="font-titre text-sm uppercase tracking-[0.3em] text-or">{t.portraitsLaureates}</p>
-              <h2 id="femmes" className="mt-2 font-titre text-4xl font-bold uppercase sm:text-5xl">{t.femmesDuNumerique}</h2>
+              <h2 id="femmes" className="mt-2 font-titre text-3xl font-bold uppercase sm:text-5xl">{t.femmesDuNumerique}</h2>
             </div>
             <Link href={lien(lang, "/rubrique/femmes-du-numerique")} className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-white/70 hover:text-or">
               {t.tousLesPortraits} <ArrowRight className="size-4" aria-hidden />
@@ -114,7 +114,7 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
           </div>
           {portraits.length > 0 && (
             <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-              <Apparition className="h-[420px] lg:h-full lg:min-h-[520px]">
+              <Apparition className="h-[320px] sm:h-[420px] lg:h-full lg:min-h-[520px]">
                 <CarteSuperposee article={portraits[0]} lang={lang} sizes="(min-width: 1024px) 55vw, 100vw" />
               </Apparition>
               <div className="grid gap-6 sm:grid-cols-2">
@@ -130,7 +130,7 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* 5. Dossiers à onglets */}
-      <section className="mx-auto max-w-7xl px-4 py-16" aria-labelledby="dossiers">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:py-16" aria-labelledby="dossiers">
         <TitreBloc lang={lang}>
           <span id="dossiers">{t.innovationAgenda}</span>
         </TitreBloc>
@@ -146,7 +146,7 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
       <Pub emplacement="ACCUEIL" decalage={1} className="mx-auto mb-16 max-w-7xl px-4" />
 
       {/* 6. Espace vidéo */}
-      <section className="relative overflow-hidden bg-fond-sombre py-16 text-white" aria-labelledby="videos">
+      <section className="relative overflow-hidden bg-fond-sombre py-10 text-white sm:py-16" aria-labelledby="videos">
         <div className="absolute -left-40 top-0 size-[480px] rounded-full bg-or/10 blur-3xl" aria-hidden />
         <div className="relative mx-auto max-w-7xl px-4">
           <TitreBloc sombre href="/videos" lang={lang}>
@@ -179,11 +179,11 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* 7. Newsletter et anciens numéros (bandeau or : couleurs fixes, identiques dans les deux thèmes) */}
-      <section id="newsletter" className="scroll-mt-20 bg-or py-16 text-noir" aria-labelledby="titre-newsletter">
+      <section id="newsletter" className="scroll-mt-20 bg-or py-10 text-noir sm:py-16" aria-labelledby="titre-newsletter">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 lg:grid-cols-[1fr_1fr]">
           <div>
             <p className="font-titre text-sm uppercase tracking-[0.3em] text-noir/70">{t.newsletterMensuelle}</p>
-            <h2 id="titre-newsletter" className="mt-2 font-titre text-4xl font-bold uppercase leading-none sm:text-5xl">{t.neManquezAucun}</h2>
+            <h2 id="titre-newsletter" className="mt-2 font-titre text-3xl font-bold uppercase leading-none sm:text-5xl">{t.neManquezAucun}</h2>
             <p className="mt-4 max-w-lg text-noir/80">{t.texteNewsletterBandeau}</p>
             <div className="mt-6 max-w-lg">
               <FormulaireNewsletter />

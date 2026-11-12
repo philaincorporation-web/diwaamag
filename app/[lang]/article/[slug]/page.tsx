@@ -122,9 +122,9 @@ async function Article({ params }: { params: PageProps<"/[lang]/article/[slug]">
             <span className="font-titre text-xs uppercase tracking-[0.2em] text-texte-doux">{t.types[a.type]}</span>
             {a.partenaire && <span className="border border-or px-2 py-1 font-titre text-[11px] uppercase leading-none tracking-[0.12em] text-or-fonce">{t.contenuPartenaire}</span>}
           </div>
-          <h1 className="mt-5 font-titre text-4xl font-bold uppercase leading-[1.04] text-encre sm:text-5xl lg:text-6xl">{a.titre}</h1>
-          <p className="mx-auto mt-6 max-w-3xl font-serif text-xl leading-relaxed text-texte-doux sm:text-[1.375rem]">{a.chapeau}</p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-texte-doux">
+          <h1 className="mt-4 font-titre text-[1.75rem] font-bold uppercase leading-[1.06] text-encre sm:mt-5 sm:text-5xl lg:text-6xl">{a.titre}</h1>
+          <p className="mx-auto mt-4 max-w-3xl font-serif text-[1.0625rem] leading-relaxed text-texte-doux sm:mt-6 sm:text-[1.375rem]">{a.chapeau}</p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-texte-doux sm:mt-7 sm:gap-x-5 sm:gap-y-2 sm:text-sm">
             <span>
               {t.Par}{" "}
               <Link href={lien(lang, `/auteur/${a.auteur.id}`)} className="font-semibold text-encre hover:text-or-fonce">{a.auteur.nom}</Link>
@@ -147,7 +147,7 @@ async function Article({ params }: { params: PageProps<"/[lang]/article/[slug]">
           </div>
         </header>
 
-        <div className="mx-auto mt-10 max-w-5xl">
+        <div className="mx-auto mt-6 max-w-5xl sm:mt-10">
           {a.type === "VIDEO" && a.videoUrl ? (
             <LecteurVideo url={a.videoUrl} titre={a.titre} />
           ) : (
@@ -162,7 +162,7 @@ async function Article({ params }: { params: PageProps<"/[lang]/article/[slug]">
           )}
         </div>
 
-        <div className="mx-auto mt-10 grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="mx-auto mt-6 grid max-w-6xl gap-10 sm:mt-10 sm:gap-12 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="min-w-0">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-ligne py-4">
               <BoutonsPartage titre={a.titre} url={url} />
