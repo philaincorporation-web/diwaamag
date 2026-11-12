@@ -11,6 +11,8 @@ import { PiedDePage } from "@/components/site/pied-de-page";
 import { EcranChargement } from "@/components/site/animations";
 import { ClientPwa } from "@/components/pwa/client-pwa";
 import { Banniere } from "@/components/site/banniere";
+import { Pub, Sponsors } from "@/components/site/pub";
+import { Analytics } from "@vercel/analytics/next";
 
 export function generateStaticParams() {
   return LANGUES.map((lang) => ({ lang }));
@@ -52,12 +54,17 @@ export default async function RacineSite({ children, params }: LayoutProps<"/[la
         <Suspense fallback={<EnTete rubriques={nav} numeroCourant={numero} />}>
           <EnTeteNavigation rubriques={nav} numeroCourant={numero} />
         </Suspense>
-        <Banniere lang={lang} />
+        <Pub emplacement="HAUT_PAGE" className="mx-auto w-full max-w-7xl px-4 pt-4" defaut={<Banniere lang={lang} />} />
         <main id="contenu" className="flex-1">
           {children}
         </main>
+        <Sponsors />
         <PiedDePage rubriques={nav} lang={lang} />
         <ClientPwa />
+        {/* Mesure d'audience (Vercel Web Analytics) : sans cookie, active une fois l'option activée dans Vercel. */}
+        <Suspense fallback={null}>
+          <Analytics />
+        </Suspense>
       </FournisseurLangue>
     </Racine>
   );

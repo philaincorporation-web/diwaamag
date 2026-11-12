@@ -94,6 +94,8 @@ model Article {
   vues            Int                 @default(0)
   metaTitre       String?
   metaDescription String?
+  /// Contenu partenaire (sponsorisé) : nom du partenaire, affiché « Contenu partenaire ». Vide = article éditorial.
+  partenaire      String?
   datePublication DateTime?
   dateProgrammee  DateTime?
   dateMiseAJour   DateTime?
@@ -151,6 +153,10 @@ model Rubrique {
   description   String?
   descriptionEn String?
   famille       FamilleRubrique
+  /// Rubrique sponsorisée : « présentée par … »
+  sponsorNom     String?
+  sponsorLien    String?
+  sponsorLogoUrl String?
   ordre         Int             @default(0)
   couleur       String?
   articles      Article[]
@@ -308,4 +314,49 @@ model ImportPdf {
 
   @@index([empreinte])
   @@index([statut])
+}
+
+// ─── Publicité ───────────────────────────────────────────────────────────────
+enum EmplacementPub {
+  HAUT_PAGE       // bannière sous la navigation, toutes les pages
+  ACCUEIL         // bannières entre les sections de l'accueil
+  ARTICLE_HAUT    // dans l'article, après le partage (avant le texte)
+  ARTICLE_BAS     // dans l'article, après le texte
+  BARRE_LATERALE  // pavé dans la barre latérale
+  SPONSORS        // mur de logos des partenaires, au-dessus du pied de page
+  NEWSLETTER      // bannière en tête des lettres d'information
+}
+
+model Publicite {
+  id          String         @id @default(cuid())
+  nom         String         // nom de la campagne (interne)
+  annonceur   String
+  emplacement EmplacementPub
+  imageUrl    String
+  imageAlt    String
+  lien        String
+  debut       DateTime?
+  fin         DateTime?
+  actif       Boolean        @default(true)
+  /// Poids de rotation : une campagne de poids 2 s'affiche deux fois plus souvent.
+  poids       Int            @default(1)
+  affichages  Int            @default(0)
+  clics       Int            @default(0)
+  creeLe      DateTime       @default(now())
+  modifieLe   DateTime       @updatedAt
+
+  @@index([emplacement, actif])
+}
+
+model DemandeAnnonceur {
+  id           String   @id @default(cuid())
+  nom          String
+  organisation String
+  email        String
+  telephone    String?
+  offre        String?
+  message      String
+  langue       String   @default("fr")
+  traitee      Boolean  @default(false)
+  creeLe       DateTime @default(now())
 }

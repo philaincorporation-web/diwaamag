@@ -29,6 +29,7 @@ export default async function NouvelArticle() {
           imageUneUrl: "",
           imageUneAlt: "",
           videoUrl: "",
+          partenaire: "",
           aLaUne: false,
           metaTitre: "",
           metaDescription: "",

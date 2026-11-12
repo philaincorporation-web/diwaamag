@@ -28,6 +28,9 @@ const schemaRubrique = z.object({
   famille: z.enum(["GEOGRAPHIQUE", "THEMATIQUE"]),
   couleur: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/, "Couleur au format #RRGGBB.").optional().or(z.literal("")),
   ordre: z.coerce.number().int().min(0).max(999).default(0),
+  sponsorNom: z.string().trim().max(80).optional(),
+  sponsorLien: z.string().trim().max(1000).refine((v) => !v || /^(https:\/\/|\/)/.test(v), "Adresse invalide (https://… ou /…).").optional(),
+  sponsorLogoUrl: z.string().trim().max(1000).refine((v) => !v || /^(https:\/\/|\/)/.test(v), "Adresse invalide (https://… ou /…).").optional(),
 });
 
 export async function enregistrerRubrique(_: Etat, formData: FormData): Promise<Etat> {
@@ -42,6 +45,9 @@ export async function enregistrerRubrique(_: Etat, formData: FormData): Promise<
     description: d.description || null,
     nomEn: d.nomEn || null,
     descriptionEn: d.descriptionEn || null,
+    sponsorNom: d.sponsorNom || null,
+    sponsorLien: d.sponsorNom ? d.sponsorLien || null : null,
+    sponsorLogoUrl: d.sponsorNom ? d.sponsorLogoUrl || null : null,
   };
   try {
     const r = id ? await prisma.rubrique.update({ where: { id }, data }) : await prisma.rubrique.create({ data });
@@ -233,14 +239,28 @@ export async function envoyerNewsletter(_: Etat, formData: FormData): Promise<Et
         `<tr><td style="padding:14px 0;border-bottom:1px solid #eee"><a href="${siteUrl(`/fr/article/${a.slug}`)}" style="color:#111;font-size:18px;font-weight:bold;text-decoration:none">${echapper(a.titre)}</a><p style="margin:6px 0 0;color:#555;font-size:14px;line-height:1.5">${echapper(a.chapeau)}</p></td></tr>`,
     )
     .join("");
+  // Bannière sponsor (emplacement NEWSLETTER) : une campagne en cours, tirée selon son poids.
+  const maintenant = new Date();
+  const sponsors = await prisma.publicite.findMany({
+    where: { emplacement: "NEWSLETTER", actif: true, AND: [{ OR: [{ debut: null }, { debut: { lte: maintenant } }] }, { OR: [{ fin: null }, { fin: { gt: maintenant } }] }] },
+  });
+  let sponsor = sponsors[0] ?? null;
+  if (sponsors.length > 1) {
+    let tirage = Math.random() * sponsors.reduce((t, p) => t + Math.max(1, p.poids), 0);
+    sponsor = sponsors.find((p) => (tirage -= Math.max(1, p.poids)) < 0) ?? sponsors[0];
+  }
+  const blocSponsor = sponsor
+    ? `<div style="padding:14px 20px 0"><p style="margin:0 0 6px;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:2px">Publicité · Cette édition vous est offerte par ${echapper(sponsor.annonceur)}</p><a href="${siteUrl(`/api/pub/${sponsor.id}/clic`)}"><img src="${sponsor.imageUrl.startsWith("/") ? siteUrl(sponsor.imageUrl) : sponsor.imageUrl}" alt="${echapper(sponsor.imageAlt)}" style="width:100%;max-width:560px;display:block;border:0"></a></div>`
+    : "";
   let envoyes = 0;
   for (const ab of abonnes) {
     const lienDesinscription = siteUrl(`/newsletter/desinscrire?jeton=${ab.jetonConfirmation}`);
-    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto"><div style="background:#111;padding:20px;color:#fff;font:bold 28px Impact,Arial">DIW<span style="color:#cda40e">A</span> MAG</div>${numero ? `<img src="${numero.couvertureUrl.startsWith("/") ? siteUrl(numero.couvertureUrl) : numero.couvertureUrl}" alt="" style="width:100%;max-width:600px">` : ""}<div style="padding:20px">${intro ? `<p style="font-size:15px;line-height:1.6">${echapper(intro).replace(/\n/g, "<br>")}</p>` : ""}<table width="100%" cellpadding="0" cellspacing="0">${blocs}</table><p style="font-size:11px;color:#888;margin-top:24px">Vous recevez cet e-mail car vous êtes inscrit·e à la newsletter DIWA MAG. <a href="${lienDesinscription}" style="color:#888">Se désinscrire</a></p></div></div>`;
+    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto"><div style="background:#111;padding:20px;color:#fff;font:bold 28px Impact,Arial">DIW<span style="color:#cda40e">A</span> MAG</div>${numero ? `<img src="${numero.couvertureUrl.startsWith("/") ? siteUrl(numero.couvertureUrl) : numero.couvertureUrl}" alt="" style="width:100%;max-width:600px">` : ""}${blocSponsor}<div style="padding:20px">${intro ? `<p style="font-size:15px;line-height:1.6">${echapper(intro).replace(/\n/g, "<br>")}</p>` : ""}<table width="100%" cellpadding="0" cellspacing="0">${blocs}</table><p style="font-size:11px;color:#888;margin-top:24px">Vous recevez cet e-mail car vous êtes inscrit·e à la newsletter DIWA MAG. <a href="${lienDesinscription}" style="color:#888">Se désinscrire</a></p></div></div>`;
     const r = await envoyerEmail({ a: ab.email, sujet, html });
     if (r.ok) envoyes++;
   }
-  await journaliser(admin.id, "ENVOI_NEWSLETTER", "Newsletter", numero?.id ?? null, { sujet, envoyes, total: abonnes.length });
+  if (sponsor && envoyes) await prisma.publicite.update({ where: { id: sponsor.id }, data: { affichages: { increment: envoyes } } });
+  await journaliser(admin.id, "ENVOI_NEWSLETTER", "Newsletter", numero?.id ?? null, { sujet, envoyes, total: abonnes.length, sponsor: sponsor?.annonceur ?? null });
   return { ok: true, message: `Newsletter envoyée à ${envoyes} abonné(s) sur ${abonnes.length}.` };
 }
 

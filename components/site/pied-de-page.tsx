@@ -53,7 +53,11 @@ export function PiedDePage({ rubriques, lang }: { rubriques: RubriqueNav[]; lang
           <ul className="mt-4 space-y-2 text-sm">
             <li><a href="https://digiewomenawards.com" target="_blank" rel="noopener" className="hover:text-or">digiewomenawards.com</a></li>
             <li><a href="mailto:redaction@digiewomen.com" className="hover:text-or">redaction@digiewomen.com</a></li>
+            <li><Link href={L("/annonceurs")} className="font-semibold text-or hover:text-white">{t.devenirPartenaire}</Link></li>
             <li><a href="mailto:diwamag@digiewomen.com" className="hover:text-or">{t.serviceCommercial}</a></li>
+            {process.env.NEXT_PUBLIC_WHATSAPP_CHAINE && (
+              <li><a href={process.env.NEXT_PUBLIC_WHATSAPP_CHAINE} target="_blank" rel="noopener" className="hover:text-or">{t.whatsappTitre}</a></li>
+            )}
           </ul>
         </div>
       </div>

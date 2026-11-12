@@ -6,6 +6,8 @@ import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { CarteClassement, TitreBloc } from "@/components/site/cartes";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
 import { DetailMeteo } from "@/components/site/meteo";
+import { Pub } from "@/components/site/pub";
+import { IconeMarque } from "@/components/site/reseaux";
 import { imageOptimisable } from "@/lib/images";
 
 export async function BlocPlusLus({ lang }: { lang: Langue }) {
@@ -22,6 +24,24 @@ export async function BlocPlusLus({ lang }: { lang: Langue }) {
           </li>
         ))}
       </ol>
+    </section>
+  );
+}
+
+/** Chaîne WhatsApp (adresse dans NEXT_PUBLIC_WHATSAPP_CHAINE ; bloc masqué si elle est vide). */
+export function BlocWhatsApp({ lang }: { lang: Langue }) {
+  const url = process.env.NEXT_PUBLIC_WHATSAPP_CHAINE;
+  if (!url) return null;
+  const t = dico(lang);
+  return (
+    <section className="bg-[#0b3d2e] p-6 text-white" aria-labelledby="whatsapp-titre">
+      <p id="whatsapp-titre" className="flex items-center gap-2 font-titre text-lg uppercase tracking-wide">
+        <IconeMarque nom="whatsapp" className="size-5 text-[#25D366]" /> {t.whatsappTitre}
+      </p>
+      <p className="mt-2 text-sm text-white/80">{t.whatsappTexte}</p>
+      <a href={url} target="_blank" rel="noopener" className="mt-4 inline-flex h-10 items-center gap-2 bg-[#25D366] px-4 text-sm font-bold text-noir hover:bg-white">
+        {t.whatsappBouton}
+      </a>
     </section>
   );
 }
@@ -100,8 +120,10 @@ export function BarreLaterale({ lang, numero = true, meteo = false }: { lang: La
   return (
     <aside className="space-y-12">
       <BlocPlusLus lang={lang} />
+      <Pub emplacement="BARRE_LATERALE" format="pave" />
       {meteo && <BlocMeteo lang={lang} />}
       <BlocNewsletter lang={lang} />
+      <BlocWhatsApp lang={lang} />
       {numero && <BlocNumero lang={lang} />}
       <BlocMotsCles lang={lang} />
     </aside>

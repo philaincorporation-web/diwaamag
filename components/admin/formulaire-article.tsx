@@ -24,6 +24,7 @@ export type ArticleFormulaire = {
   imageUneUrl: string;
   imageUneAlt: string;
   videoUrl: string;
+  partenaire: string;
   aLaUne: boolean;
   metaTitre: string;
   metaDescription: string;
@@ -233,6 +234,11 @@ export function FormulaireArticle({
               <option value="DOSSIER">Dossier de fond</option>
               <option value="VIDEO">Vidéo</option>
             </select>
+          </div>
+          <div>
+            <Libelle htmlFor="partenaire">Contenu partenaire (sponsorisé)</Libelle>
+            <input id="partenaire" name="partenaire" defaultValue={article.partenaire} maxLength={120} placeholder="Nom du partenaire, sinon laisser vide" className={classesChamp} />
+            <p className="mt-1 text-xs text-texte-doux">Rempli : l&apos;article porte la mention « Contenu partenaire » et n&apos;affiche aucune bannière publicitaire.</p>
           </div>
           {type === "VIDEO" && (
             <div>

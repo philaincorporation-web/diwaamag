@@ -60,7 +60,19 @@ export function FormulaireRubrique({
   rubrique,
   onFini,
 }: {
-  rubrique?: { id: string; nom: string; description: string | null; nomEn?: string | null; descriptionEn?: string | null; famille: string; couleur: string | null; ordre: number };
+  rubrique?: {
+    id: string;
+    nom: string;
+    description: string | null;
+    nomEn?: string | null;
+    descriptionEn?: string | null;
+    famille: string;
+    couleur: string | null;
+    ordre: number;
+    sponsorNom?: string | null;
+    sponsorLien?: string | null;
+    sponsorLogoUrl?: string | null;
+  };
   onFini?: () => void;
 }) {
   const { etat, onSubmit, enCours, ref } = useFormulaire(enregistrerRubrique, { viderSiSucces: !rubrique });
@@ -84,6 +96,14 @@ export function FormulaireRubrique({
         <Champ label="Nom en anglais"><input name="nomEn" lang="en" defaultValue={rubrique?.nomEn ?? ""} className={classesChamp} placeholder="ex. Women in tech" /></Champ>
         <Champ label="Description en anglais"><input name="descriptionEn" lang="en" defaultValue={rubrique?.descriptionEn ?? ""} className={classesChamp} /></Champ>
       </div>
+      <fieldset className="border border-dashed border-ligne p-3">
+        <legend className="px-1 text-sm font-semibold">Sponsor de la rubrique (facultatif) — affiché « Rubrique présentée par … »</legend>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Champ label="Nom du sponsor"><input name="sponsorNom" defaultValue={rubrique?.sponsorNom ?? ""} className={classesChamp} placeholder="ex. Moov Africa" /></Champ>
+          <Champ label="Lien (https://…)"><input name="sponsorLien" type="url" defaultValue={rubrique?.sponsorLien ?? ""} className={classesChamp} /></Champ>
+          <Champ label="Logo (adresse de l'image)"><input name="sponsorLogoUrl" defaultValue={rubrique?.sponsorLogoUrl ?? ""} className={classesChamp} placeholder="Copier l'adresse depuis Médias" /></Champ>
+        </div>
+      </fieldset>
       <div className="flex items-center gap-3">
         <Soumettre enCours={enCours}>{rubrique ? "Enregistrer" : <><Plus className="size-4" aria-hidden /> Créer la rubrique</>}</Soumettre>
         {onFini && <button type="button" onClick={onFini} className={classesBouton.lien}>Annuler</button>}

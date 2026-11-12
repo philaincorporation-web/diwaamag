@@ -32,6 +32,8 @@ const MESSAGES = {
     presque: "Presque fini ! Cliquez sur le lien de confirmation envoyé par e-mail.",
     sujetCourt: "Indiquez un sujet.",
     contactEnvoye: "Merci, votre message a été transmis à la rédaction.",
+    organisationCourte: "Indiquez votre entreprise ou organisation.",
+    annonceurEnvoye: "Merci ! Votre demande a été transmise à notre service commercial, qui vous répondra sous 48 heures ouvrées.",
     contactErreur: "L'envoi est momentanément indisponible. Écrivez-nous directement à redaction@digiewomen.com.",
     sujetNewsletter: "Confirmez votre inscription à la newsletter DIWA MAG",
     corpsNewsletter: [
@@ -60,6 +62,8 @@ const MESSAGES = {
     presque: "Almost there! Click the confirmation link we just emailed you.",
     sujetCourt: "Please enter a subject.",
     contactEnvoye: "Thank you, your message has been sent to the editorial team.",
+    organisationCourte: "Please enter your company or organisation.",
+    annonceurEnvoye: "Thank you! Your request has been sent to our sales team, who will reply within 2 business days.",
     contactErreur: "Sending is temporarily unavailable. Please email us at redaction@digiewomen.com.",
     sujetNewsletter: "Confirm your DIWA MAG newsletter subscription",
     corpsNewsletter: [
@@ -218,4 +222,41 @@ export async function envoyerContact(_: EtatFormulaire, formData: FormData): Pro
     html: `<p><strong>${echapper(d.nom)}</strong> (${echapper(d.email)}) écrit :</p><p>${echapper(d.message).replace(/\n/g, "<br>")}</p>`,
   });
   return r.ok ? { ok: true, message: m.contactEnvoye } : { ok: false, message: m.contactErreur };
+}
+
+const OFFRES_ANNONCEUR = ["pack-awards", "rubrique", "bannieres", "contenu-partenaire", "newsletter-whatsapp", "annonces", "video", "autre"] as const;
+
+/** Demande d'un annonceur (page « Annonceurs ») : enregistrée pour le back-office et transmise par e-mail. */
+export async function envoyerDemandeAnnonceur(_: EtatFormulaire, formData: FormData): Promise<EtatFormulaire> {
+  const lang = langueDe(formData);
+  const m = MESSAGES[lang];
+  if (formData.get("site_web")) return { ok: true, message: m.annonceurEnvoye };
+  const parsed = z
+    .object({
+      nom: z.string().trim().min(2, m.nomCourt).max(80),
+      organisation: z.string().trim().min(2, m.organisationCourte).max(120),
+      email: z.string().trim().email(m.emailInvalide),
+      telephone: z.string().trim().max(40).optional().transform((v) => v || null),
+      offre: z.enum(OFFRES_ANNONCEUR).optional().catch(undefined),
+      message: z.string().trim().min(10, m.messageCourt).max(5000, m.messageLong),
+    })
+    .safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, message: m.corriger, erreurs: erreursDe(parsed.error) };
+  if (!(await verifierTurnstile(formData.get("cf-turnstile-response") as string | null, await adresseIp()))) {
+    return { ok: false, message: m.antispam };
+  }
+  const d = parsed.data;
+  // Limite simple : 3 demandes par adresse e-mail et par heure.
+  const recentes = await prisma.demandeAnnonceur.count({ where: { email: d.email, creeLe: { gt: new Date(Date.now() - 3_600_000) } } });
+  if (recentes >= 3) return { ok: true, message: m.annonceurEnvoye };
+  await prisma.demandeAnnonceur.create({
+    data: { nom: d.nom, organisation: d.organisation, email: d.email, telephone: d.telephone, offre: d.offre ?? null, message: d.message, langue: lang },
+  });
+  const dest = process.env.COMMERCIAL_EMAIL || process.env.CONTACT_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "diwamag@digiewomen.com";
+  await envoyerEmail({
+    a: dest,
+    sujet: `[Annonceur DIWA MAG] ${d.organisation} — ${d.offre ?? "demande"}`,
+    html: `<p><strong>${echapper(d.nom)}</strong> — ${echapper(d.organisation)}<br>${echapper(d.email)}${d.telephone ? ` · ${echapper(d.telephone)}` : ""}</p><p>Offre : ${echapper(d.offre ?? "non précisée")}</p><p>${echapper(d.message).replace(/\n/g, "<br>")}</p><p>À traiter dans le back-office › Publicités.</p>`,
+  });
+  return { ok: true, message: m.annonceurEnvoye };
 }

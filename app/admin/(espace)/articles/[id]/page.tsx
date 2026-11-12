@@ -85,6 +85,7 @@ export default async function ModifierArticle({ params, searchParams }: PageProp
           imageUneUrl: article.imageUneUrl ?? "",
           imageUneAlt: article.imageUneAlt ?? "",
           videoUrl: article.videoUrl ?? "",
+          partenaire: article.partenaire ?? "",
           aLaUne: article.aLaUne,
           metaTitre: article.metaTitre ?? "",
           metaDescription: article.metaDescription ?? "",

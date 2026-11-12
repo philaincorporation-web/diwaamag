@@ -8,9 +8,11 @@ import { getArticle, getArticlesLies, getCommentaires, getIndexPublic } from "@/
 import { siteUrl } from "@/lib/format";
 import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
-import { texteBrut } from "@/lib/content";
 import { CarteVerticale, EtiquetteRubrique, TitreBloc } from "@/components/site/cartes";
 import { LecteurVideo, TexteRiche } from "@/components/site/texte-riche";
+import { Pub } from "@/components/site/pub";
+import { LectureAudio } from "@/components/site/lecture-audio";
+import { texteBrut } from "@/lib/content";
 import { BoutonRepondre, BoutonSignaler, BoutonsPartage, CompteurVues, FormulaireCommentaire, ProgressionLecture } from "@/components/site/interactifs";
 import { BlocNewsletter, BlocPlusLus } from "@/components/site/barre-laterale";
 import { Apparition } from "@/components/site/animations";
@@ -118,6 +120,7 @@ async function Article({ params }: { params: PageProps<"/[lang]/article/[slug]">
           <div className="flex items-center justify-center gap-3">
             <EtiquetteRubrique rubrique={a.rubrique} lang={lang} />
             <span className="font-titre text-xs uppercase tracking-[0.2em] text-texte-doux">{t.types[a.type]}</span>
+            {a.partenaire && <span className="border border-or px-2 py-1 font-titre text-[11px] uppercase leading-none tracking-[0.12em] text-or-fonce">{t.contenuPartenaire}</span>}
           </div>
           <h1 className="mt-5 font-titre text-4xl font-bold uppercase leading-[1.04] text-encre sm:text-5xl lg:text-6xl">{a.titre}</h1>
           <p className="mx-auto mt-6 max-w-3xl font-serif text-xl leading-relaxed text-texte-doux sm:text-[1.375rem]">{a.chapeau}</p>
@@ -161,10 +164,18 @@ async function Article({ params }: { params: PageProps<"/[lang]/article/[slug]">
 
         <div className="mx-auto mt-10 grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="min-w-0">
-            <div className="mb-8 border-y border-ligne py-4">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-ligne py-4">
               <BoutonsPartage titre={a.titre} url={url} />
+              <LectureAudio texte={`${a.titre}. ${a.chapeau}. ${texteBrut(a.contenu)}`} />
             </div>
+            {a.partenaire && (
+              <p className="mb-8 border-l-4 border-or bg-fond-2 px-4 py-3 text-sm">
+                <strong className="font-titre uppercase tracking-[0.12em] text-or-fonce">{t.contenuPartenaire}</strong> · {t.enCollaborationAvec} <strong>{a.partenaire}</strong>.
+              </p>
+            )}
+            {!a.partenaire && <Pub emplacement="ARTICLE_HAUT" className="mb-8" />}
             <TexteRiche doc={a.contenu} />
+            {!a.partenaire && <Pub emplacement="ARTICLE_BAS" className="mt-10" />}
 
             {a.motsCles.length > 0 && (
               <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-ligne pt-6">

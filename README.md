@@ -126,6 +126,17 @@ Back-office › **Import PDF** (ou bouton « Importer un PDF » de la liste des 
 
 **Tests** : des PDF de test ont été produits (article en deux colonnes avec texte sélectionnable, intertitres, citation en exergue, encadré, légendes et crédits ; même article scanné ; faux PDF) et le parcours complet a été vérifié dans le navigateur (refus du faux PDF, analyse, corrections, aperçu, création du brouillon non publié, doublon, abandon, accès refusé sans connexion).
 
+### 5.4 Publicité, partenaires et audience
+
+Modèle économique inspiré de l'analyse de Gabon Media Time (bannières vendues en direct, contenus partenaires, chaîne WhatsApp), adapté à l'audience qualifiée de Diwaa Mag.
+
+- **Back-office › Publicités** : campagnes (annonceur, image de la médiathèque ou adresse, lien, dates de début et de fin, poids de rotation, activation), compteurs d'**affichages** (bannière réellement vue à l'écran) et de **clics** (redirection `/api/pub/<id>/clic`), taux de clic, **bilan CSV** pour les annonceurs, et les **demandes** reçues depuis la page Annonceurs.
+- **Emplacements** (`lib/publicite-emplacements.ts`) : haut de page (sans campagne, la bannière DigieWomen Awards reste affichée), accueil (deux bannières entre les sections), article (avant et après le texte), barre latérale, mur des partenaires (logos au-dessus du pied de page), newsletter (« Cette édition vous est offerte par… »). Plusieurs campagnes sur un même emplacement tournent selon leur poids ; le tirage se fait dans le navigateur pour que les pages restent en cache.
+- **Transparence** : mention « Publicité » sur chaque bannière, liens `rel="sponsored"`. Un article dont le champ **Contenu partenaire** est rempli porte la mention « Contenu partenaire · Article réalisé en collaboration avec … » et n'affiche aucune bannière dans son texte. Une rubrique peut avoir un **sponsor** (« Rubrique présentée par … », formulaire des rubriques).
+- **Page publique `/fr/annonceurs` et `/en/annonceurs`** : audience, offres, emplacements et formats conseillés, engagements, formulaire de demande (anti-spam, enregistré en base et envoyé par e-mail à `COMMERCIAL_EMAIL`). Lien « Devenir partenaire » dans le pied de page.
+- **Audience** : Vercel Web Analytics (sans cookie) à activer dans Vercel › *Analytics*. Les vues par article restent comptées par le site.
+- **Fidélisation** : bloc « Diwaa Mag sur WhatsApp » (variable `NEXT_PUBLIC_WHATSAPP_CHAINE`) et bouton « Écouter l'article » (synthèse vocale du navigateur, français ou anglais).
+
 ## 6. Écarts au document d'architecture (justifiés)
 
 | Écart | Raison |

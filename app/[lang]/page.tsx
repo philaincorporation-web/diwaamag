@@ -10,6 +10,7 @@ import { Apparition, BandeauDefilant, CarrouselUne, OngletsRubriques } from "@/c
 import { BarreLaterale } from "@/components/site/barre-laterale";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
 import { imageOptimisable } from "@/lib/images";
+import { Pub } from "@/components/site/pub";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
   const lang = langueParams((await params).lang);
@@ -97,6 +98,8 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
         </div>
       </section>
 
+      <Pub emplacement="ACCUEIL" className="mx-auto mt-12 max-w-7xl px-4" />
+
       {/* 4. Femmes du numérique */}
       <section className="bg-noir py-16 text-white" aria-labelledby="femmes">
         <div className="mx-auto max-w-7xl px-4">
@@ -139,6 +142,8 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
           ]}
         />
       </section>
+
+      <Pub emplacement="ACCUEIL" decalage={1} className="mx-auto mb-16 max-w-7xl px-4" />
 
       {/* 6. Espace vidéo */}
       <section className="relative overflow-hidden bg-fond-sombre py-16 text-white" aria-labelledby="videos">

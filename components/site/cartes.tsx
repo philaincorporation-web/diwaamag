@@ -38,6 +38,12 @@ export function MetaArticle({
   const t = dico(lang);
   return (
     <p className={cn("flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] font-medium", clair ? "text-white/80" : "text-texte-doux", className)}>
+      {article.partenaire && (
+        <>
+          <span className={cn("font-titre text-[11px] uppercase tracking-[0.14em]", clair ? "text-or" : "text-or-fonce")}>{t.contenuPartenaire}</span>
+          <span aria-hidden>·</span>
+        </>
+      )}
       {auteur && (
         <>
           <span>

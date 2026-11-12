@@ -7,7 +7,7 @@ import { Check, Flag, Link2, Loader2, Send, Share2 } from "lucide-react";
 import { useFormulaire, useValeurNavigateur } from "@/lib/hooks";
 import { useLangue } from "@/components/i18n/contexte";
 import { IconeMarque } from "@/components/site/reseaux";
-import { envoyerContact, inscrireNewsletter, publierCommentaire, signalerCommentaire, type EtatFormulaire } from "@/lib/actions/publiques";
+import { envoyerContact, envoyerDemandeAnnonceur, inscrireNewsletter, publierCommentaire, signalerCommentaire, type EtatFormulaire } from "@/lib/actions/publiques";
 import { lien } from "@/lib/i18n";
 import { cn } from "@/lib/cn";
 
@@ -285,6 +285,38 @@ export function FormulaireContact() {
       <Turnstile />
       <button disabled={enCours} className="inline-flex h-11 items-center gap-2 bg-noir px-6 font-titre text-sm font-semibold uppercase tracking-[0.12em] text-white hover:bg-or hover:text-noir disabled:opacity-60">
         {enCours && <Loader2 className="size-4 animate-spin" aria-hidden />} {t.envoyer}
+      </button>
+      <Retour etat={etat} />
+    </form>
+  );
+}
+
+/** Formulaire de la page « Annonceurs ». */
+export function FormulaireAnnonceur({ offres }: { offres: { valeur: string; libelle: string }[] }) {
+  const { t } = useLangue();
+  const { etat, onSubmit, enCours, ref } = useFormulaire(envoyerDemandeAnnonceur, { viderSiSucces: true });
+  return (
+    <form ref={ref} onSubmit={onSubmit} className="relative space-y-4">
+      <ChampsCaches />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Champ label={t.nom} name="nom" required erreur={etat?.erreurs?.nom} autoComplete="name" />
+        <Champ label={t.organisation} name="organisation" required erreur={etat?.erreurs?.organisation} autoComplete="organization" />
+        <Champ label={t.email} name="email" type="email" required erreur={etat?.erreurs?.email} autoComplete="email" />
+        <Champ label={t.telephone} name="telephone" type="tel" erreur={etat?.erreurs?.telephone} autoComplete="tel" />
+      </div>
+      <div>
+        <label htmlFor="champ-offre" className="mb-1 block text-sm font-semibold">{t.offreSouhaitee}</label>
+        <select id="champ-offre" name="offre" defaultValue="" className="w-full border border-ligne bg-fond px-3 py-2.5 text-sm outline-none focus:border-or">
+          <option value="">{t.offreAuChoix}</option>
+          {offres.map((o) => (
+            <option key={o.valeur} value={o.valeur}>{o.libelle}</option>
+          ))}
+        </select>
+      </div>
+      <Champ label={t.votreProjet} name="message" required multiligne erreur={etat?.erreurs?.message} />
+      <Turnstile />
+      <button disabled={enCours} className="inline-flex h-11 items-center gap-2 bg-noir px-6 font-titre text-sm font-semibold uppercase tracking-[0.12em] text-white hover:bg-or hover:text-noir disabled:opacity-60">
+        {enCours && <Loader2 className="size-4 animate-spin" aria-hidden />} {t.envoyerDemande}
       </button>
       <Retour etat={etat} />
     </form>

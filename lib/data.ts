@@ -19,6 +19,7 @@ export const TAGS = {
   numeros: "numeros",
   commentaires: (articleId: string) => `commentaires:${articleId}`,
   parametres: "parametres",
+  publicites: "publicites",
 } as const;
 
 const PUBLIE = { statut: "PUBLIE" } satisfies Prisma.ArticleWhereInput;
@@ -37,6 +38,7 @@ function selection(lang: Langue) {
     dateMiseAJour: true,
     tempsLecture: true,
     vues: true,
+    partenaire: true,
     rubrique: { select: { nom: true, nomEn: true, slug: true, couleur: true } },
     auteur: { select: { id: true, nom: true } },
     traductions: { where: { langue: lang }, select: { titre: true, chapeau: true } },
@@ -88,7 +90,12 @@ export async function getRubrique(slug: string, lang: Langue) {
   cacheLife("days");
   const r = await prisma.rubrique.findUnique({ where: { slug } });
   if (!r) return null;
-  return { ...rubriqueLocale(r, lang), famille: r.famille, description: lang === "en" && r.descriptionEn ? r.descriptionEn : r.description };
+  return {
+    ...rubriqueLocale(r, lang),
+    famille: r.famille,
+    description: lang === "en" && r.descriptionEn ? r.descriptionEn : r.description,
+    sponsor: r.sponsorNom ? { nom: r.sponsorNom, lien: r.sponsorLien, logoUrl: r.sponsorLogoUrl } : null,
+  };
 }
 
 /** Articles du carrousel « À la une » (ordreUne), complétés par les plus récents si besoin. */
@@ -303,4 +310,47 @@ export async function getIndexPublic() {
     prisma.admin.findMany({ where: { articles: { some: PUBLIE } }, select: { id: true } }),
   ]);
   return { articles, rubriques, numeros, motsCles, auteurs };
+}
+
+export type EmplacementPublicite = "HAUT_PAGE" | "ACCUEIL" | "ARTICLE_HAUT" | "ARTICLE_BAS" | "BARRE_LATERALE" | "SPONSORS" | "NEWSLETTER";
+export type PubliciteAffichee = { id: string; annonceur: string; imageUrl: string; imageAlt: string; poids: number; debut: number | null; fin: number | null };
+
+/**
+ * Campagnes actives par emplacement. Les dates de début et de fin sont transmises au navigateur,
+ * qui filtre et fait tourner les campagnes : les pages restent en cache.
+ */
+export async function getPublicites(): Promise<Record<EmplacementPublicite, PubliciteAffichee[]>> {
+  "use cache";
+  cacheTag(TAGS.publicites);
+  cacheLife("hours");
+  const liste = await prisma.publicite.findMany({
+    where: { actif: true, OR: [{ fin: null }, { fin: { gt: new Date(Date.now() - 86_400_000) } }] },
+    orderBy: { creeLe: "asc" },
+  });
+  const parEmplacement = { HAUT_PAGE: [], ACCUEIL: [], ARTICLE_HAUT: [], ARTICLE_BAS: [], BARRE_LATERALE: [], SPONSORS: [], NEWSLETTER: [] } as Record<EmplacementPublicite, PubliciteAffichee[]>;
+  for (const p of liste) {
+    parEmplacement[p.emplacement].push({
+      id: p.id,
+      annonceur: p.annonceur,
+      imageUrl: p.imageUrl,
+      imageAlt: p.imageAlt,
+      poids: Math.max(1, p.poids),
+      debut: p.debut?.getTime() ?? null,
+      fin: p.fin?.getTime() ?? null,
+    });
+  }
+  return parEmplacement;
+}
+
+/** Chiffres publics du magazine (page « Annonceurs »). */
+export async function getChiffresMagazine() {
+  "use cache";
+  cacheTag(TAGS.articles, TAGS.rubriques, TAGS.numeros);
+  cacheLife("days");
+  const [articles, rubriques, numeros] = await Promise.all([
+    prisma.article.count({ where: PUBLIE }),
+    prisma.rubrique.count(),
+    prisma.numero.count({ where: { publie: true } }),
+  ]);
+  return { articles, rubriques, numeros };
 }
