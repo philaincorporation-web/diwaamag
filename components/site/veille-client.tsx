@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Bell, BellOff, Loader2, Play, RefreshCw, Volume2 } from "lucide-react";
 import { useLangue } from "@/components/i18n/contexte";
 import { useValeurNavigateur } from "@/lib/hooks";
@@ -76,6 +76,43 @@ const lireSon = () => {
   return instantaneSon;
 };
 
+type Appareil = "androidApp" | "android" | "ios" | "ordinateur";
+function detecterAppareil(): Appareil {
+  const ua = navigator.userAgent;
+  const installee = window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+  if (/android/i.test(ua)) return installee ? "androidApp" : "android";
+  return "ordinateur";
+}
+
+/** Notifications refusées : le site ne peut pas redemander ; aide pas à pas selon l'appareil. */
+function AideDeblocage({ onReessayer, occupe, encoreBloquees }: { onReessayer: () => void; occupe: boolean; encoreBloquees: boolean }) {
+  const { lang } = useLangue();
+  const t = TEXTES_PREFERENCES[lang];
+  const appareil = useValeurNavigateur(detecterAppareil, "ordinateur");
+  return (
+    <div className="border-l-4 border-or bg-or-clair/40 p-5">
+      <p className="flex items-center gap-2 font-bold">
+        <BellOff className="size-5 text-or-fonce" aria-hidden /> {t.bloqueesTitre}
+      </p>
+      <p className="mt-2 text-sm">{t.bloqueesIntro}</p>
+      <ol className="mt-4 space-y-3">
+        {t.etapes[appareil].map((e, i) => (
+          <li key={e} className="flex gap-3 text-sm">
+            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-noir text-xs font-bold text-or">{i + 1}</span>
+            <span className="pt-0.5">{e}</span>
+          </li>
+        ))}
+      </ol>
+      <button type="button" disabled={occupe} onClick={onReessayer} className="mt-5 inline-flex h-11 items-center gap-2 bg-noir px-5 text-sm font-semibold text-white hover:bg-or hover:text-noir disabled:opacity-60">
+        {occupe ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Bell className="size-4" aria-hidden />} {t.jaiAutorise}
+      </button>
+      {encoreBloquees && <p role="status" className="mt-3 text-sm font-medium text-danger">{t.toujoursBloquees}</p>}
+      <p className="mt-4 text-xs text-texte-doux">{t.siEchec}</p>
+    </div>
+  );
+}
+
 export function PreferencesVeille({ categories }: { categories: { slug: string; nom: string; nomEn: string }[] }) {
   const { lang } = useLangue();
   const t = TEXTES_PREFERENCES[lang];
@@ -89,6 +126,7 @@ export function PreferencesVeille({ categories }: { categories: { slug: string; 
   const [historique, setHistorique] = useState<Historique>([]);
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
   const [occupe, setOccupe] = useState(false);
+  const [encoreBloquees, setEncoreBloquees] = useState(false);
 
   const chargerPrefs = async (ep: string) => {
     const [p, h] = await Promise.all([
@@ -123,7 +161,29 @@ export function PreferencesVeille({ categories }: { categories: { slug: string; 
     };
   }, [support, cle]);
 
-  if (support === "inconnu") return <Loader2 className="size-6 animate-spin text-or" aria-label="Chargement" />;
+  // Déblocage fait dans les réglages : au retour sur la page (ou au changement d'autorisation),
+  // l'abonnement est activé automatiquement, sans nouvelle manipulation.
+  const activerRef = useRef<() => Promise<void>>(async () => {});
+  useEffect(() => {
+    if (etat !== "refuse") return;
+    const verifier = () => {
+      if (document.visibilityState === "visible" && Notification.permission !== "denied") void activerRef.current();
+    };
+    document.addEventListener("visibilitychange", verifier);
+    let statut: PermissionStatus | null = null;
+    navigator.permissions
+      ?.query({ name: "notifications" })
+      .then((st) => {
+        statut = st;
+        st.onchange = verifier;
+      })
+      .catch(() => {});
+    return () => {
+      document.removeEventListener("visibilitychange", verifier);
+      if (statut) statut.onchange = null;
+    };
+  }, [etat]);
+
 
   const activer = async () => {
     setOccupe(true);
@@ -132,9 +192,11 @@ export function PreferencesVeille({ categories }: { categories: { slug: string; 
       // Demande d'autorisation : uniquement à la suite de ce clic explicite.
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
+        if (permission === "denied" && etat === "refuse") setEncoreBloquees(true);
         setEtat(permission === "denied" ? "refuse" : "inactif");
         return;
       }
+      setEncoreBloquees(false);
       const reg = await navigator.serviceWorker.ready;
       let sub: PushSubscription;
       try {
@@ -154,6 +216,10 @@ export function PreferencesVeille({ categories }: { categories: { slug: string; 
       setOccupe(false);
     }
   };
+
+  useEffect(() => {
+    activerRef.current = activer;
+  });
 
   const desactiver = async () => {
     setOccupe(true);
@@ -185,6 +251,8 @@ export function PreferencesVeille({ categories }: { categories: { slug: string; 
   const basculer = (cleListe: "categoriesVeille" | "zonesVeille", valeur: string) =>
     setPrefs((p) => ({ ...p, [cleListe]: p[cleListe].includes(valeur) ? p[cleListe].filter((v) => v !== valeur) : [...p[cleListe], valeur] }));
 
+  if (support === "inconnu") return <Loader2 className="size-6 animate-spin text-or" aria-label="Chargement" />;
+
   const case_ = "flex items-center gap-2 border border-ligne px-3 py-2 text-sm has-[:checked]:border-or has-[:checked]:bg-or-clair/50";
 
   return (
@@ -196,7 +264,7 @@ export function PreferencesVeille({ categories }: { categories: { slug: string; 
         ) : !cle ? (
           <p className="border-l-4 border-or bg-fond-2 px-4 py-3 text-sm">{t.nonConfigure}</p>
         ) : etat === "refuse" ? (
-          <p className="border-l-4 border-danger bg-danger/5 px-4 py-3 text-sm">{t.bloquees}</p>
+          <AideDeblocage onReessayer={activer} occupe={occupe} encoreBloquees={encoreBloquees} />
         ) : etat === "chargement" ? (
           <Loader2 className="size-6 animate-spin text-or" aria-label="Chargement" />
         ) : etat === "inactif" ? (

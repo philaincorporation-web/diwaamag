@@ -167,7 +167,11 @@ export function BoutonNotifications() {
   };
 
   if (etat === "refuse") {
-    return <p className="text-xs text-white/60">{t.notifsBloquees}</p>;
+    return (
+      <a href={`/${lang}/veille/preferences`} className="text-xs text-white/60 underline hover:text-or">
+        {t.notifsBloquees}
+      </a>
+    );
   }
   return (
     <button

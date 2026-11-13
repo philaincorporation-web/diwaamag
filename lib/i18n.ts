@@ -235,7 +235,7 @@ const fr = {
   fermer: "Fermer",
   notifActives: "Notifications activées",
   activerNotifs: "Activer les notifications",
-  notifsBloquees: "Notifications bloquées dans les réglages du navigateur.",
+  notifsBloquees: "Notifications bloquées : comment les réactiver",
   // Météo
   meteoChargement: "Chargement de la météo…",
   meteoErreur: "Météo indisponible pour le moment.",
@@ -430,7 +430,7 @@ const en: Dictionnaire = {
   fermer: "Close",
   notifActives: "Notifications on",
   activerNotifs: "Turn on notifications",
-  notifsBloquees: "Notifications are blocked in your browser settings.",
+  notifsBloquees: "Notifications blocked: how to turn them back on",
   meteoChargement: "Loading weather…",
   meteoErreur: "Weather is unavailable right now.",
   ressenti: "Feels like",
