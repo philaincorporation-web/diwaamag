@@ -9,12 +9,12 @@ import banniere from "@/public/banniere/digiewomen-awards-2026.png";
 const TEXTES = {
   fr: {
     alt: "DigieWomen Awards Africa, 4e édition : la femme digitale africaine de l'année remportera 5 000 000 FCFA et un billet d'avion vers la destination de son choix. Inscription sur www.digiewomenawards.com",
-    action: "S'inscrire",
+    action: "Voter maintenant",
     publicite: "Partenaire",
   },
   en: {
     alt: "DigieWomen Awards Africa, 4th edition: the African digital woman of the year will win 5,000,000 FCFA and a plane ticket to the destination of her choice. Register at www.digiewomenawards.com",
-    action: "Register",
+    action: "Vote now",
     publicite: "Partner",
   },
 } as const;

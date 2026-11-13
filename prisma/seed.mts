@@ -82,11 +82,11 @@ async function main() {
 
   // Signature éditoriale collective : compte désactivé (aucune connexion possible).
   const redaction = await prisma.admin.upsert({
-    where: { email: "redaction@diwaamagazine.com" },
+    where: { email: "redaction@diwaamag.com" },
     update: {},
     create: {
       nom: "Rédaction DIWA MAG",
-      email: "redaction@diwaamagazine.com",
+      email: "redaction@diwaamag.com",
       motDePasse: await bcrypt.hash(randomBytes(24).toString("hex"), 12),
       role: "ADMIN",
       actif: false,

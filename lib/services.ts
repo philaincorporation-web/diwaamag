@@ -5,7 +5,7 @@ import { Resend } from "resend";
 import { sendNotification, setVapidDetails } from "web-push";
 import { prisma } from "@/lib/db";
 
-const expediteur = process.env.EMAIL_FROM || "DIWA MAG <redaction@diwaamagazine.com>";
+const expediteur = process.env.EMAIL_FROM || "DIWA MAG <redaction@diwaamag.com>";
 
 export async function envoyerEmail({ a, sujet, html }: { a: string | string[]; sujet: string; html: string }) {
   const cle = process.env.RESEND_API_KEY;
@@ -38,7 +38,7 @@ export function configurerPush() {
   const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
   if (!pub || !priv) return false;
-  setVapidDetails(process.env.VAPID_SUBJECT || "mailto:redaction@diwaamagazine.com", pub, priv);
+  setVapidDetails(process.env.VAPID_SUBJECT || "mailto:redaction@diwaamag.com", pub, priv);
   return true;
 }
 
