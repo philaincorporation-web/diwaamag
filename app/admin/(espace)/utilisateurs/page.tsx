@@ -7,6 +7,7 @@ import { basculerActivation, supprimerUtilisateur } from "@/lib/actions/gestion"
 import { Carte, EnTeteAdmin } from "@/components/admin/presentation";
 import { BoutonAction } from "@/components/admin/ui";
 import { FormulaireUtilisateur, UtilisateurEditable } from "@/components/admin/formulaires";
+import { BoutonInvitation } from "@/components/admin/invitations";
 import { cn } from "@/lib/cn";
 
 // Page liée à la session : rendue à la demande (navigation bloquante assumée).
@@ -18,7 +19,7 @@ export default async function PageUtilisateurs() {
   const moi = await exigerSuperAdmin();
   const comptes = await prisma.admin.findMany({
     orderBy: [{ role: "asc" }, { nom: "asc" }],
-    select: { id: true, nom: true, email: true, role: true, actif: true, bio: true, derniereConnexion: true, _count: { select: { articles: true } } },
+    select: { id: true, nom: true, email: true, role: true, actif: true, bio: true, derniereConnexion: true, doitChangerMotDePasse: true, _count: { select: { articles: true } } },
   });
   return (
     <>
@@ -29,6 +30,9 @@ export default async function PageUtilisateurs() {
             <div className="min-w-0">
               <p className="font-semibold">
                 {c.nom} {c.id === moi.id && <span className="text-xs font-normal text-or-fonce">(vous)</span>}
+                {c.doitChangerMotDePasse && c.id !== moi.id && (
+                  <span className="ml-2 bg-or-clair px-1.5 py-0.5 text-[11px] font-semibold text-or-fonce">invitation en attente de première connexion</span>
+                )}
               </p>
               <p className="text-sm text-texte-doux">{c.email}</p>
               <p className="mt-1 text-xs text-texte-doux">
@@ -39,6 +43,7 @@ export default async function PageUtilisateurs() {
             <UtilisateurEditable utilisateur={c}>
               {c.id !== moi.id && (
                 <>
+                  {c.actif && <BoutonInvitation id={c.id} nom={c.nom} />}
                   <BoutonAction action={basculerActivation.bind(null, c.id)} className="h-8 px-3" confirmation={c.actif ? `Désactiver le compte de ${c.nom} ?` : undefined}>
                     <Power className="size-4" aria-hidden /> {c.actif ? "Désactiver" : "Réactiver"}
                   </BoutonAction>
@@ -54,6 +59,9 @@ export default async function PageUtilisateurs() {
         ))}
       </div>
       <Carte titre="Nouvel administrateur" className="mt-8">
+        <p className="mb-4 text-sm text-texte-doux">
+          Un e-mail d&apos;invitation est envoyé avec l&apos;adresse du back-office, l&apos;identifiant et un mot de passe provisoire, à changer à la première connexion.
+        </p>
         <FormulaireUtilisateur />
       </Carte>
     </>

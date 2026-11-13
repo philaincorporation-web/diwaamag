@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
 }
 
 async function Espace({ children }: { children: React.ReactNode }) {
-  const admin = await exigerAdmin();
+  const admin = await exigerAdmin({ motDePasseProvisoireAutorise: true });
   const enAttente = await prisma.commentaire.count({ where: { statut: { in: ["EN_ATTENTE", "SIGNALE"] } } });
   return (
     <>

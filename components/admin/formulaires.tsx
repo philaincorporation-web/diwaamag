@@ -450,7 +450,7 @@ export function FormulaireUtilisateur({
         </Champ>
       </div>
       <Champ label="Biographie (page auteur)"><input name="bio" defaultValue={utilisateur?.bio ?? ""} className={classesChamp} /></Champ>
-      <Champ label={utilisateur ? "Nouveau mot de passe (laisser vide pour conserver)" : "Mot de passe (laisser vide pour en générer un)"}>
+      <Champ label={utilisateur ? "Nouveau mot de passe provisoire (laisser vide pour conserver ; envoyé par e-mail)" : "Mot de passe provisoire (laisser vide pour en générer un)"}>
         <input name="motDePasse" type="password" autoComplete="new-password" minLength={10} className={classesChamp} />
       </Champ>
       <div className="flex items-center gap-3">
@@ -478,7 +478,8 @@ export function UtilisateurEditable({ utilisateur, children }: { utilisateur: No
 }
 
 export function FormulaireMotDePasse() {
-  const { etat, onSubmit, enCours, ref } = useFormulaire(changerMotDePasse, { viderSiSucces: true });
+  const router = useRouter();
+  const { etat, onSubmit, enCours, ref } = useFormulaire(changerMotDePasse, { viderSiSucces: true, apresSucces: () => router.refresh() });
   return (
     <form ref={ref} onSubmit={onSubmit} className="max-w-sm space-y-3">
       <Champ label="Mot de passe actuel" requis><input name="actuel" type="password" required autoComplete="current-password" className={classesChamp} /></Champ>

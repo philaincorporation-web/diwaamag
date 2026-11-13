@@ -68,6 +68,8 @@ model Admin {
   avatarUrl         String?
   bio               String?
   derniereConnexion DateTime?
+  /// Mot de passe provisoire (envoyé par invitation) : à changer à la première connexion.
+  doitChangerMotDePasse Boolean       @default(false)
   articles          Article[]         @relation("AuteurArticles")
   versions          ArticleVersion[]
   medias            Media[]

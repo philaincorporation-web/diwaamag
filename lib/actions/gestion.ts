@@ -1,6 +1,5 @@
 "use server";
 
-import { randomBytes } from "node:crypto";
 import { updateTag } from "next/cache";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -10,6 +9,7 @@ import { exigerAdmin, exigerSuperAdmin, journaliser } from "@/lib/admin";
 import { slugify } from "@/lib/content";
 import { echapper, envoyerEmail } from "@/lib/services";
 import { siteUrl } from "@/lib/format";
+import { envoyerInvitationAdmin, messageInvitation, motDePasseProvisoire } from "@/lib/invitation";
 
 export type Etat = { ok: boolean; message: string } | null;
 
@@ -290,28 +290,49 @@ export async function enregistrerUtilisateur(_: Etat, formData: FormData): Promi
   if (d.motDePasse && d.motDePasse.length < 10) return { ok: false, message: "Le mot de passe doit comporter au moins 10 caractères." };
   if (d.id === admin.id && d.role !== "SUPER_ADMIN") return { ok: false, message: "Vous ne pouvez pas retirer votre propre rôle de super-administrateur." };
 
-  let motDePasseGenere: string | null = null;
-  const motDePasse = d.motDePasse || (!d.id ? (motDePasseGenere = randomBytes(9).toString("base64url")) : null);
+  // Création : mot de passe provisoire (saisi ou généré) envoyé par e-mail, à changer à la 1re connexion.
+  // Modification avec un nouveau mot de passe pour un autre compte : idem (réinitialisation).
+  const provisoire = !d.id ? d.motDePasse || motDePasseProvisoire() : d.motDePasse && d.id !== admin.id ? d.motDePasse : null;
+  const motDePasse = provisoire ?? d.motDePasse ?? null;
+  let u;
   try {
-    const u = d.id
+    u = d.id
       ? await prisma.admin.update({
           where: { id: d.id },
-          data: { nom: d.nom, email: d.email, role: d.role, bio: d.bio || null, ...(motDePasse ? { motDePasse: await bcrypt.hash(motDePasse, 12) } : {}) },
+          data: {
+            nom: d.nom,
+            email: d.email,
+            role: d.role,
+            bio: d.bio || null,
+            ...(motDePasse ? { motDePasse: await bcrypt.hash(motDePasse, 12), doitChangerMotDePasse: Boolean(provisoire) } : {}),
+          },
         })
       : await prisma.admin.create({
-          data: { nom: d.nom, email: d.email, role: d.role, bio: d.bio || null, motDePasse: await bcrypt.hash(motDePasse!, 12) },
+          data: { nom: d.nom, email: d.email, role: d.role, bio: d.bio || null, motDePasse: await bcrypt.hash(provisoire!, 12), doitChangerMotDePasse: true },
         });
     await journaliser(admin.id, d.id ? "MODIFICATION" : "CREATION", "Admin", u.id, { email: u.email, role: u.role });
   } catch {
     return { ok: false, message: "Cette adresse e-mail est déjà utilisée." };
   }
   updateTag(TAGS.articles);
-  return {
-    ok: true,
-    message: motDePasseGenere
-      ? `Compte créé. Mot de passe provisoire à transmettre de façon sécurisée : ${motDePasseGenere}`
-      : "Compte enregistré.",
-  };
+  if (!provisoire) return { ok: true, message: "Compte enregistré." };
+  const envoi = await envoyerInvitationAdmin({ nom: u.nom, email: u.email, role: u.role, motDePasse: provisoire, invitePar: admin.nom });
+  await journaliser(admin.id, "INVITATION", "Admin", u.id, { email: u.email, envoyee: envoi.ok });
+  return { ok: true, message: messageInvitation(envoi.ok, u.email, provisoire, d.id ? "Mot de passe réinitialisé." : "Compte créé.") };
+}
+
+/** Renvoie une invitation : nouveau mot de passe provisoire, envoyé par e-mail. */
+export async function renvoyerInvitation(id: string): Promise<Etat> {
+  const admin = await exigerSuperAdmin();
+  if (id === admin.id) return { ok: false, message: "Utilisez « Mon compte » pour votre propre mot de passe." };
+  const u = await prisma.admin.findUnique({ where: { id } });
+  if (!u) return { ok: false, message: "Compte introuvable." };
+  if (!u.actif) return { ok: false, message: "Réactivez d'abord ce compte." };
+  const provisoire = motDePasseProvisoire();
+  await prisma.admin.update({ where: { id }, data: { motDePasse: await bcrypt.hash(provisoire, 12), doitChangerMotDePasse: true } });
+  const envoi = await envoyerInvitationAdmin({ nom: u.nom, email: u.email, role: u.role, motDePasse: provisoire, invitePar: admin.nom });
+  await journaliser(admin.id, "INVITATION", "Admin", id, { email: u.email, envoyee: envoi.ok, renvoi: true });
+  return { ok: envoi.ok, message: messageInvitation(envoi.ok, u.email, provisoire, "Nouvelle invitation.") };
 }
 
 export async function basculerActivation(id: string): Promise<Etat> {
@@ -339,13 +360,14 @@ export async function supprimerUtilisateur(id: string): Promise<Etat> {
 }
 
 export async function changerMotDePasse(_: Etat, formData: FormData): Promise<Etat> {
-  const admin = await exigerAdmin();
+  const admin = await exigerAdmin({ motDePasseProvisoireAutorise: true });
   const actuel = String(formData.get("actuel") || "");
   const nouveau = String(formData.get("nouveau") || "");
   if (nouveau.length < 10) return { ok: false, message: "Le nouveau mot de passe doit comporter au moins 10 caractères." };
   const u = await prisma.admin.findUnique({ where: { id: admin.id } });
   if (!u || !(await bcrypt.compare(actuel, u.motDePasse))) return { ok: false, message: "Mot de passe actuel incorrect." };
-  await prisma.admin.update({ where: { id: admin.id }, data: { motDePasse: await bcrypt.hash(nouveau, 12) } });
+  if (await bcrypt.compare(nouveau, u.motDePasse)) return { ok: false, message: "Choisissez un mot de passe différent du mot de passe provisoire." };
+  await prisma.admin.update({ where: { id: admin.id }, data: { motDePasse: await bcrypt.hash(nouveau, 12), doitChangerMotDePasse: false } });
   await journaliser(admin.id, "CHANGEMENT_MOT_DE_PASSE", "Admin", admin.id);
-  return { ok: true, message: "Mot de passe modifié." };
+  return { ok: true, message: u.doitChangerMotDePasse ? "Mot de passe enregistré. Bienvenue : tout le back-office vous est maintenant accessible." : "Mot de passe modifié." };
 }
