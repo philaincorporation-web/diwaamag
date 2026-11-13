@@ -23,6 +23,7 @@ import {
   FileUp,
   Megaphone,
   Radar,
+  Inbox,
 } from "lucide-react";
 import { deconnexion } from "@/lib/actions/session";
 import { cn } from "@/lib/cn";
@@ -38,6 +39,7 @@ const LIENS = [
   { href: "/admin/rubriques", libelle: "Rubriques", icone: FolderTree },
   { href: "/admin/mots-cles", libelle: "Mots-clés", icone: Tags },
   { href: "/admin/commentaires", libelle: "Commentaires", icone: MessageSquare, compteur: "commentaires" as const },
+  { href: "/admin/messages", libelle: "Messages", icone: Inbox },
   { href: "/admin/numeros", libelle: "Numéros", icone: Newspaper },
   { href: "/admin/newsletter", libelle: "Newsletter", icone: Mail },
 ];

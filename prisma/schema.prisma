@@ -452,3 +452,18 @@ model NotificationVeille {
 
   @@unique([abonnementId, actualiteId])
 }
+
+/// Messages du formulaire de contact : toujours enregistrés, même si l'e-mail de notification échoue.
+model MessageContact {
+  id          String   @id @default(cuid())
+  nom         String
+  email       String
+  sujet       String
+  message     String
+  langue      String   @default("fr")
+  lu          Boolean  @default(false)
+  emailEnvoye Boolean  @default(false)
+  creeLe      DateTime @default(now())
+
+  @@index([lu, creeLe])
+}

@@ -215,13 +215,25 @@ export async function envoyerContact(_: EtatFormulaire, formData: FormData): Pro
     return { ok: false, message: m.antispam };
   }
   const d = parsed.data;
+  // Limite simple : 5 messages par adresse e-mail et par heure.
+  const recents = await prisma.messageContact.count({ where: { email: d.email, creeLe: { gt: new Date(Date.now() - 3_600_000) } } });
+  if (recents >= 5) return { ok: true, message: m.contactEnvoye };
+  // Le message est d'abord enregistré (back-office › Messages) : il n'est jamais perdu, même si l'e-mail échoue.
+  let enregistre;
+  try {
+    enregistre = await prisma.messageContact.create({ data: { nom: d.nom, email: d.email, sujet: d.sujet, message: d.message, langue: lang } });
+  } catch (e) {
+    console.error("Message de contact non enregistré :", e);
+    return { ok: false, message: m.contactErreur };
+  }
   const dest = process.env.CONTACT_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || "redaction@digiewomen.com";
   const r = await envoyerEmail({
     a: dest,
     sujet: `[Contact DIWA MAG${lang === "en" ? " — EN" : ""}] ${d.sujet}`,
-    html: `<p><strong>${echapper(d.nom)}</strong> (${echapper(d.email)}) écrit :</p><p>${echapper(d.message).replace(/\n/g, "<br>")}</p>`,
+    html: `<p><strong>${echapper(d.nom)}</strong> (${echapper(d.email)}) écrit :</p><p>${echapper(d.message).replace(/\n/g, "<br>")}</p><p>Message également disponible dans le back-office › Messages.</p>`,
   });
-  return r.ok ? { ok: true, message: m.contactEnvoye } : { ok: false, message: m.contactErreur };
+  if (r.ok) await prisma.messageContact.update({ where: { id: enregistre.id }, data: { emailEnvoye: true } }).catch(() => {});
+  return { ok: true, message: m.contactEnvoye };
 }
 
 const OFFRES_ANNONCEUR = ["pack-awards", "rubrique", "bannieres", "contenu-partenaire", "newsletter-whatsapp", "annonces", "video", "autre"] as const;
