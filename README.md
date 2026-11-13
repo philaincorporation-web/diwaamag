@@ -184,6 +184,8 @@ Les 18 premiers articles proviennent du **DIWA MAG — Le magazine de la femme d
 
 ## 9. Mise en ligne (Vercel + OVH + Neon)
 
+> Procédure détaillée pour le domaine **diwaamag.com** (zone DNS OVH, e-mails Resend) : [docs/guide-ovh.md](docs/guide-ovh.md).
+
 1. Créer le projet **Neon** (région Francfort) ; copier l'URL *pooled* dans `DATABASE_URL` et l'URL directe dans `DIRECT_URL`.
 2. Créer le compte **Vercel** au nom de Digiewomen School et relier le dépôt GitHub. `vercel.json` déclare une tâche cron **quotidienne** (5 h UTC, soit 6 h à Libreville), seule fréquence autorisée par l'offre gratuite Hobby.
 3. Renseigner les variables d'environnement (§4) dans *Settings → Environment Variables*. Le script `build` applique automatiquement les migrations.
