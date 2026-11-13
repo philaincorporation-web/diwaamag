@@ -34,7 +34,7 @@ export async function verifierTurnstile(jeton: string | null | undefined, ip?: s
   return data.success;
 }
 
-function configurerPush() {
+export function configurerPush() {
   const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
   if (!pub || !priv) return false;
@@ -42,29 +42,41 @@ function configurerPush() {
   return true;
 }
 
-/** Envoie une notification push à tous les abonnés ; supprime les abonnements expirés. */
+/** Envoie une notification push (nouvel article du magazine) aux abonnés qui l'ont demandée. */
 export async function notifierNouvelArticle(article: { titre: string; slug: string; chapeau: string; imageUneUrl: string | null }) {
   if (!configurerPush()) return { envoyes: 0 };
-  const abonnements = await prisma.abonnementPush.findMany();
-  const charge = JSON.stringify({
-    title: article.titre,
-    body: article.chapeau.slice(0, 140),
-    url: `/fr/article/${article.slug}`,
-    image: article.imageUneUrl,
-  });
+  const abonnements = await prisma.abonnementPush.findMany({ where: { articles: true } });
   let envoyes = 0;
   await Promise.all(
     abonnements.map(async (a) => {
-      try {
-        await sendNotification({ endpoint: a.endpoint, keys: { p256dh: a.p256dh, auth: a.auth } }, charge);
-        envoyes++;
-      } catch (e) {
-        const code = (e as { statusCode?: number }).statusCode;
-        if (code === 404 || code === 410) await prisma.abonnementPush.delete({ where: { id: a.id } }).catch(() => {});
-      }
+      const ok = await envoyerPush(a, {
+        title: article.titre,
+        body: article.chapeau.slice(0, 140),
+        url: `/${a.langue === "en" ? "en" : "fr"}/article/${article.slug}`,
+        image: article.imageUneUrl,
+        tag: `article-${article.slug}`,
+        type: "article",
+      });
+      if (ok) envoyes++;
     }),
   );
   return { envoyes };
+}
+
+/**
+ * Envoi d'une notification à un abonnement. Supprime l'abonnement s'il a expiré ou a été révoqué
+ * (réponses 404 / 410 du service push). Renvoie true si l'envoi a réussi.
+ */
+export async function envoyerPush(a: { id: string; endpoint: string; p256dh: string; auth: string }, charge: Record<string, unknown>) {
+  try {
+    await sendNotification({ endpoint: a.endpoint, keys: { p256dh: a.p256dh, auth: a.auth } }, JSON.stringify(charge), { TTL: 60 * 60 * 24 });
+    return true;
+  } catch (e) {
+    const code = (e as { statusCode?: number }).statusCode;
+    if (code === 404 || code === 410) await prisma.abonnementPush.delete({ where: { id: a.id } }).catch(() => {});
+    else console.error("Notification push non envoyée :", code ?? e);
+    return false;
+  }
 }
 
 /** Échappe une chaîne pour l'insérer dans un e-mail HTML. */

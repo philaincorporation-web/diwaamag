@@ -37,6 +37,7 @@ export function PiedDePage({ rubriques, lang }: { rubriques: RubriqueNav[]; lang
           <h2 className="font-titre text-sm uppercase tracking-[0.2em] text-or">{t.leMagazine}</h2>
           <ul className="mt-4 space-y-2 text-sm">
             <li><Link href={L("/numeros")} className="hover:text-or">{t.anciensNumeros}</Link></li>
+            <li><Link href={L("/veille")} className="hover:text-or">{t.veilleMedia}</Link></li>
             <li><Link href={L("/videos")} className="hover:text-or">{t.videos}</Link></li>
             <li><Link href={L("/recherche")} className="hover:text-or">{t.rechercher}</Link></li>
             <li><Link href={L("/a-propos")} className="hover:text-or">{t.aPropos}</Link></li>

@@ -3,7 +3,7 @@
  *  - images : cache d'abord, expiration 30 jours ;
  *  - ressources statiques Next.js : cache d'abord (fichiers versionnés).
  * Le back-office (/admin) et l'API ne sont jamais mis en cache. */
-const VERSION = "diwa-v2";
+const VERSION = "diwa-v3";
 const CACHE_PAGES = `${VERSION}-pages`;
 const CACHE_IMAGES = `${VERSION}-images`;
 const CACHE_STATIQUE = `${VERSION}-statique`;
@@ -103,24 +103,30 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
-/* Notifications push des nouveaux articles. */
+/* Notifications push : nouveaux articles du magazine et actualités de la Veille Média.
+ * Le son de la notification système est géré par le navigateur et l'appareil ; si une page du site
+ * est ouverte, elle est prévenue et joue elle-même la signature sonore (selon les réglages du lecteur). */
 self.addEventListener("push", (event) => {
   let donnees = {};
   try {
     donnees = event.data ? event.data.json() : {};
   } catch {
-    donnees = { title: "DIWA MAG", body: event.data ? event.data.text() : "" };
+    donnees = { title: "DIWA Magazine", body: event.data ? event.data.text() : "" };
   }
-  event.waitUntil(
-    self.registration.showNotification(donnees.title || "DIWA MAG", {
-      body: donnees.body || "Un nouvel article vient de paraître.",
-      icon: "/icons/icon-192.png",
-      badge: "/icons/icon-192.png",
-      image: donnees.image || undefined,
-      data: { url: donnees.url || "/" },
-      lang: "fr",
-    }),
-  );
+  const url = donnees.url || "/";
+  const affichage = self.registration.showNotification(donnees.title || "DIWA Magazine", {
+    body: donnees.body || "Un nouvel article vient de paraître.",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    image: donnees.image || undefined,
+    tag: donnees.tag || undefined,
+    data: { url },
+    lang: url.startsWith("/en") ? "en" : "fr",
+  });
+  const prevenirPages = self.clients
+    .matchAll({ type: "window", includeUncontrolled: true })
+    .then((fenetres) => fenetres.filter((f) => f.visibilityState === "visible").forEach((f) => f.postMessage({ type: "diwa-notification", genre: donnees.type || "article", titre: donnees.body, url })));
+  event.waitUntil(Promise.all([affichage, prevenirPages]));
 });
 
 self.addEventListener("notificationclick", (event) => {

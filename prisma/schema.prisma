@@ -247,11 +247,19 @@ model AbonneNewsletter {
 }
 
 model AbonnementPush {
-  id       String   @id @default(cuid())
-  endpoint String   @unique
-  p256dh   String
-  auth     String
-  creeLe   DateTime @default(now())
+  id               String               @id @default(cuid())
+  endpoint         String               @unique
+  p256dh           String
+  auth             String
+  /// Préférences du lecteur (le site n'a pas de comptes lecteurs : elles suivent l'abonnement de l'appareil).
+  langue           String               @default("fr")
+  articles         Boolean              @default(true)  // nouveaux articles du magazine
+  veille           Boolean              @default(false) // actualités de la Veille Média
+  categoriesVeille String[]             @default([])    // slugs suivis ; vide = toutes
+  zonesVeille      ZoneVeille[]         @default([])    // vide = toutes
+  creeLe           DateTime             @default(now())
+  modifieLe        DateTime             @default(now()) @updatedAt
+  notifications    NotificationVeille[]
 }
 
 model JournalActivite {
@@ -359,4 +367,88 @@ model DemandeAnnonceur {
   langue       String   @default("fr")
   traitee      Boolean  @default(false)
   creeLe       DateTime @default(now())
+}
+
+// ─── Veille Média ────────────────────────────────────────────────────────────
+enum ZoneVeille {
+  GABON
+  AFRIQUE_CENTRALE
+  AFRIQUE_OUEST
+  AFRIQUE_EST
+  AFRIQUE_AUSTRALE
+  AFRIQUE_NORD
+  INTERNATIONAL
+  NON_PRECISE
+}
+
+model SourceVeille {
+  id                 String            @id @default(cuid())
+  nom                String
+  url                String            @unique // adresse du flux RSS / Atom (dont Google Alerts)
+  siteUrl            String?
+  langue             String            @default("fr")
+  /// Zone appliquée quand aucun pays n'est reconnu dans l'actualité (ex. média gabonais → Gabon).
+  zoneParDefaut      ZoneVeille?
+  /// Catégorie appliquée quand aucun mot-clé n'est reconnu (ex. média tech → innovation).
+  categorieParDefaut String?
+  /// Média généraliste : ne garder que les actualités reconnues dans une catégorie technologique.
+  filtrerTech        Boolean           @default(false)
+  actif              Boolean           @default(true)
+  dernierReleve      DateTime?
+  dernierStatut      String?           // "ok" ou "erreur"
+  derniereErreur     String?
+  derniersAjouts     Int?
+  echecsConsecutifs  Int               @default(0)
+  creeLe             DateTime          @default(now())
+  modifieLe          DateTime          @updatedAt
+  actualites         ActualiteVeille[]
+}
+
+model CategorieVeille {
+  id       String   @id @default(cuid())
+  slug     String   @unique
+  nom      String
+  nomEn    String
+  /// Mots-clés (FR et EN) utilisés pour le classement automatique.
+  motsCles String[] @default([])
+  ordre    Int      @default(0)
+  actif    Boolean  @default(true)
+}
+
+model ActualiteVeille {
+  id              String               @id @default(cuid())
+  sourceId        String
+  source          SourceVeille         @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  titre           String
+  extrait         String               // extrait court (jamais l'article complet)
+  url             String
+  urlCanonique    String               @unique
+  empreinte       String               // titre normalisé : doublons entre sources
+  imageUrl        String?
+  langue          String               @default("fr")
+  datePublication DateTime
+  categories      String[]             @default([])
+  zone            ZoneVeille           @default(NON_PRECISE)
+  masquee         Boolean              @default(false)
+  /// Traitement des notifications effectué (envoyées ou volontairement ignorées).
+  notifiee        Boolean              @default(false)
+  creeLe          DateTime             @default(now())
+  notifications   NotificationVeille[]
+
+  @@index([datePublication])
+  @@index([empreinte])
+  @@index([masquee, datePublication])
+}
+
+/// Historique des notifications : une seule par actualité et par abonnement (clé unique).
+model NotificationVeille {
+  id           String          @id @default(cuid())
+  abonnementId String
+  abonnement   AbonnementPush  @relation(fields: [abonnementId], references: [id], onDelete: Cascade)
+  actualiteId  String
+  actualite    ActualiteVeille @relation(fields: [actualiteId], references: [id], onDelete: Cascade)
+  envoyee      Boolean         @default(true)
+  creeLe       DateTime        @default(now())
+
+  @@unique([abonnementId, actualiteId])
 }

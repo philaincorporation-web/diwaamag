@@ -137,13 +137,14 @@ export function EnTete({ rubriques, numeroCourant, chemin = "" }: ProprietesEnTe
             {geo.map((r) => (
               <LienNav key={r.slug} href={L(`/rubrique/${r.slug}`)} actif={actif(`/rubrique/${r.slug}`)}>{r.nom}</LienNav>
             ))}
-            {themes.slice(0, compact ? 2 : 3).map((r) => (
+            {themes.slice(0, compact ? 1 : 2).map((r) => (
               <LienNav key={r.slug} href={L(`/rubrique/${r.slug}`)} actif={actif(`/rubrique/${r.slug}`)}>{r.nom}</LienNav>
             ))}
+            <LienNav href={L("/veille")} actif={actif("/veille")}>{t.veilleMedia}</LienNav>
             <li className="group relative flex">
               <button type="button" className="flex items-center px-3 font-titre text-[15px] uppercase tracking-[0.08em] hover:text-or">{t.plus}</button>
               <ul className="invisible absolute left-0 top-full min-w-56 translate-y-2 bg-fond py-2 text-encre opacity-0 shadow-xl transition-all group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                {themes.slice(compact ? 2 : 3).map((r) => (
+                {themes.slice(compact ? 1 : 2).map((r) => (
                   <li key={r.slug}>
                     <Link href={L(`/rubrique/${r.slug}`)} className="block px-4 py-2 text-sm font-medium hover:bg-fond-2 hover:text-or-fonce">{r.nom}</Link>
                   </li>
@@ -197,6 +198,7 @@ export function EnTete({ rubriques, numeroCourant, chemin = "" }: ProprietesEnTe
                 <p className="mb-2 mt-6 font-titre text-xs uppercase tracking-[0.2em] text-or">{t.thematiques}</p>
                 {themes.map((r) => <LienMobile key={r.slug} href={L(`/rubrique/${r.slug}`)}>{r.nom}</LienMobile>)}
                 <p className="mb-2 mt-6 font-titre text-xs uppercase tracking-[0.2em] text-or">{t.magazine}</p>
+                <LienMobile href={L("/veille")}>{t.veilleMedia}</LienMobile>
                 <LienMobile href={L("/videos")}>{t.videos}</LienMobile>
                 <LienMobile href={L("/numeros")}>{t.anciensNumeros}</LienMobile>
                 <LienMobile href={L("/a-propos")}>{t.aPropos}</LienMobile>

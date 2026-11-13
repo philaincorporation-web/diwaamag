@@ -17,7 +17,7 @@ function bilingue(chemin: string, extra: Omit<Entree, "url" | "alternates"> = {}
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { articles, rubriques, numeros, motsCles, auteurs } = await getIndexPublic();
   return [
-    ...["/", "/numeros", "/videos", "/a-propos", "/contact", "/annonceurs"].flatMap((p) => bilingue(p, { changeFrequency: "daily", priority: p === "/" ? 1 : 0.5 })),
+    ...["/", "/numeros", "/videos", "/a-propos", "/contact", "/annonceurs", "/veille"].flatMap((p) => bilingue(p, { changeFrequency: "daily", priority: p === "/" ? 1 : 0.5 })),
     ...articles.flatMap((a) =>
       bilingue(`/article/${a.slug}`, {
         lastModified: a.dateMiseAJour ?? a.datePublication ?? undefined,

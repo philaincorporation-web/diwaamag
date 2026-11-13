@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Bell, BellRing, Download, Share, SquarePlus, X } from "lucide-react";
 import { useValeurNavigateur } from "@/lib/hooks";
 import { useLangue } from "@/components/i18n/contexte";
+import { jouerSonNotification } from "@/components/pwa/son";
 
 type BeforeInstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
 
@@ -48,6 +49,21 @@ export function ClientPwa() {
     return () => {
       window.removeEventListener("beforeinstallprompt", surInvite);
       if (t) clearTimeout(t);
+    };
+  }, []);
+
+  // Application ouverte : une notification reçue (message du service worker) ou de nouvelles
+  // actualités détectées par la page déclenchent la signature sonore, selon les réglages du lecteur.
+  useEffect(() => {
+    const surMessage = (e: MessageEvent) => {
+      if ((e.data as { type?: string } | null)?.type === "diwa-notification") void jouerSonNotification();
+    };
+    const surNouvelles = () => void jouerSonNotification();
+    navigator.serviceWorker?.addEventListener("message", surMessage);
+    window.addEventListener("diwa-nouvelles", surNouvelles);
+    return () => {
+      navigator.serviceWorker?.removeEventListener("message", surMessage);
+      window.removeEventListener("diwa-nouvelles", surNouvelles);
     };
   }, []);
 
@@ -109,7 +125,7 @@ function base64VersUint8(base64: string) {
 
 /** Bouton d'abonnement aux notifications des nouveaux articles. */
 export function BoutonNotifications() {
-  const { t } = useLangue();
+  const { t, lang } = useLangue();
   const cle = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const disponible = useValeurNavigateur(
     () => Boolean(cle) && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window,
@@ -136,7 +152,7 @@ export function BoutonNotifications() {
     }
     const reg = await navigator.serviceWorker.ready;
     const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64VersUint8(cle!) });
-    await fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(sub) });
+    await fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...sub.toJSON(), langue: lang }) });
     setEtat("actif");
   };
 
