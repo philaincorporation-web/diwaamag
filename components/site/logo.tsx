@@ -2,9 +2,21 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 
 /** Logotype DIWA MAG (typographique, aux couleurs de la charte). */
-export function Logo({ clair = false, className, taille = "md" }: { clair?: boolean; className?: string; taille?: "sm" | "md" | "lg" }) {
+export function Logo({
+  clair = false,
+  className,
+  taille = "md",
+  href = "/",
+  slogan = "La femme digitale",
+}: {
+  clair?: boolean;
+  className?: string;
+  taille?: "sm" | "md" | "lg";
+  href?: string;
+  slogan?: string;
+}) {
   return (
-    <Link href="/" aria-label="DIWA MAG — accueil" className={cn("group inline-flex items-end gap-2 leading-none", className)}>
+    <Link href={href} aria-label="DIWA MAG" className={cn("group inline-flex items-end gap-2 leading-none", className)}>
       <span
         className={cn(
           "font-titre font-bold uppercase tracking-tight",
@@ -24,7 +36,7 @@ export function Logo({ clair = false, className, taille = "md" }: { clair?: bool
             clair ? "text-white/70" : "text-texte-doux",
           )}
         >
-          La femme digitale
+          {slogan}
         </span>
       </span>
     </Link>
