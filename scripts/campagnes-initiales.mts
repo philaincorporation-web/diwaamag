@@ -30,9 +30,11 @@ type Visuel = { annonceur: string; lien: string; alt: string; altEn: string; fin
 const VISUELS: Record<string, Visuel> = {
   "votez-maintenant": {
     ...DIWAA,
-    alt: "DigieWomen Awards Africa 2026 : votez maintenant, du 3 novembre au 16 décembre 2026, sur digiewomenawards.com et zekin.me/diwaa26. Le participant qui vote le plus remporte 1 000 000 FCFA.",
-    altEn: "DigieWomen Awards Africa 2026: vote now, from 3 November to 16 December 2026, at digiewomenawards.com and zekin.me/diwaa26. The participant who votes the most wins 1,000,000 FCFA.",
-    fin: finLe("2026-12-16"),
+    alt: "DigieWomen Awards Africa 2026 : votez maintenant, du 2 novembre au 15 décembre 2026, sur digiewomenawards.com et zekin.me/diwaa26. Le participant qui vote le plus remporte 1 000 000 FCFA.",
+    altEn: "DigieWomen Awards Africa 2026: vote now, from 2 November to 15 December 2026, at digiewomenawards.com and zekin.me/diwaa26. The participant who votes the most wins 1,000,000 FCFA.",
+    // Dates officielles du vote : celles de la vidéo de présentation (2 nov. – 15 déc. 2026).
+    // Le visuel indique « 03 nov. – 16 déc. » : à faire corriger par le graphiste.
+    fin: finLe("2026-12-15"),
   },
   "femme-digitale": {
     ...DIWAA,
