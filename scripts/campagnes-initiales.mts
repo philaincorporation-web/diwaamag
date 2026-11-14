@@ -5,7 +5,8 @@
 //   npx tsx scripts/campagnes-initiales.mts                    (base locale, fichier .env)
 //   npx tsx scripts/campagnes-initiales.mts --env .env.neon    (base de production, après déploiement)
 //
-// Formats utilisés : billboard 970 × 250 (HP-01) et rectangle 300 × 250 (HP-02, ART-02).
+// Formats utilisés : billboard 970 × 250 avec sa version mobile 320 × 100 (HP-01), rectangle 300 × 250
+// (HP-02, ART-02). Une campagne existante sans image mobile reçoit la sienne (seul champ complété).
 // Les visuels half-page (300 × 600) et newsletter (600 × 150) sont prêts pour la phase 2.
 import { config } from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -92,9 +93,13 @@ try {
   for (const [visuel, emplacement, format, poids] of CAMPAGNES) {
     const v = VISUELS[visuel];
     const id = `initiale-${visuel}-${emplacement.toLowerCase().replace(/_/g, "-")}`;
-    const existe = await prisma.publicite.findUnique({ where: { id }, select: { id: true } });
+    const mobile = format === "billboard" ? `/pubs/${visuel}/mobile.jpg` : null;
+    const existe = await prisma.publicite.findUnique({ where: { id }, select: { imageMobileUrl: true } });
     if (existe) {
-      console.log(`déjà présente  ${CODES[emplacement]}  ${visuel}`);
+      if (mobile && !existe.imageMobileUrl) {
+        await prisma.publicite.update({ where: { id }, data: { imageMobileUrl: mobile } });
+        console.log(`image mobile   ${CODES[emplacement]}  ${visuel}`);
+      } else console.log(`déjà présente  ${CODES[emplacement]}  ${visuel}`);
       continue;
     }
     await prisma.publicite.create({
@@ -104,6 +109,7 @@ try {
         annonceur: v.annonceur,
         emplacement,
         imageUrl: `/pubs/${visuel}/${format}.jpg`,
+        imageMobileUrl: mobile,
         imageAlt: v.alt,
         imageAltEn: v.altEn,
         langue: "TOUTES",
