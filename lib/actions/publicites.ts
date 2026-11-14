@@ -8,7 +8,9 @@ import { TAGS } from "@/lib/data";
 import { exigerAdmin, journaliser } from "@/lib/admin";
 import type { Etat } from "@/lib/actions/gestion";
 
-const EMPLACEMENTS = ["HAUT_PAGE", "ACCUEIL", "ARTICLE_HAUT", "ARTICLE_BAS", "BARRE_LATERALE", "SPONSORS", "NEWSLETTER"] as const;
+const EMPLACEMENTS = ["HAUT_PAGE", "ACCUEIL", "ARTICLE_HAUT", "ARTICLE_MILIEU", "ARTICLE_BAS", "BARRE_LATERALE", "SPONSORS", "NEWSLETTER"] as const;
+const LANGUES = ["TOUTES", "FR", "EN"] as const;
+const adresseImage = (v: string) => /^(https:\/\/|\/)/.test(v);
 
 /** Date du formulaire (AAAA-MM-JJ) : début à 00 h 00, fin à 23 h 59 (heure de Libreville, UTC+1). */
 const date = (fin: boolean) =>
@@ -33,6 +35,15 @@ const schema = z
     emplacement: z.enum(EMPLACEMENTS, { message: "Choisissez un emplacement." }),
     imageUrl: z.string().trim().min(1, "Choisissez une image.").max(1000).refine((v) => /^(https:\/\/|\/)/.test(v), "Adresse d'image invalide."),
     imageAlt: z.string().trim().min(3, "Décrivez l'image (texte alternatif).").max(200),
+    imageMobileUrl: z
+      .string()
+      .trim()
+      .max(1000)
+      .optional()
+      .transform((v) => v || null)
+      .refine((v) => v === null || adresseImage(v), "Adresse de l'image mobile invalide."),
+    imageAltEn: z.string().trim().max(200).optional().transform((v) => v || null),
+    langue: z.enum(LANGUES).default("TOUTES"),
     lien: z.string().trim().max(1000).refine((v) => /^https?:\/\//i.test(v), "Le lien doit commencer par https://"),
     debut: date(false),
     fin: date(true),

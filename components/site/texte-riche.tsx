@@ -123,10 +123,43 @@ function Noeud({ n }: { n: TiptapNode }): React.ReactNode {
   }
 }
 
-export function TexteRiche({ doc }: { doc: TiptapDoc }) {
+/**
+ * Positions d'insertion des encarts dans le corps (ART-02) : après le 3e paragraphe, puis un second
+ * une fois 1 200 mots dépassés. Jamais en toute fin de texte, jamais deux encarts rapprochés.
+ */
+function positionsEncarts(blocs: TiptapNode[]) {
+  const positions: number[] = [];
+  let paragraphes = 0;
+  let mots = 0;
+  blocs.forEach((b, i) => {
+    if (i >= blocs.length - 1) return;
+    mots += texteBrut(b).split(/\s+/).filter(Boolean).length;
+    if (b.type === "paragraph") paragraphes += 1;
+    if (!positions.length && paragraphes === 3 && b.type === "paragraph") positions.push(i);
+    else if (positions.length === 1 && mots >= 1200 && i >= positions[0] + 4 && b.type === "paragraph") positions.push(i);
+  });
+  return positions;
+}
+
+export function TexteRiche({ doc, encart }: { doc: TiptapDoc; encart?: (rang: number) => React.ReactNode }) {
+  const racine = doc as unknown as TiptapNode;
+  const blocs = racine.content ?? [];
+  if (!encart || !blocs.length) {
+    return (
+      <div className="corps-article">
+        <Noeud n={racine} />
+      </div>
+    );
+  }
+  const positions = positionsEncarts(blocs);
   return (
     <div className="corps-article">
-      <Noeud n={doc as unknown as TiptapNode} />
+      {blocs.map((b, i) => (
+        <Fragment key={i}>
+          <Noeud n={b} />
+          {positions.includes(i) && encart(positions.indexOf(i))}
+        </Fragment>
+      ))}
     </div>
   );
 }

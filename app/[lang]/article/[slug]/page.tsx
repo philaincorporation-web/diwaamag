@@ -10,7 +10,7 @@ import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { alternates, langueParams, auMoinsUn } from "@/lib/seo";
 import { CarteVerticale, EtiquetteRubrique, TitreBloc } from "@/components/site/cartes";
 import { LecteurVideo, TexteRiche } from "@/components/site/texte-riche";
-import { Pub } from "@/components/site/pub";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { LectureAudio } from "@/components/site/lecture-audio";
 import { texteBrut } from "@/lib/content";
 import { BoutonRepondre, BoutonSignaler, BoutonsPartage, CompteurVues, FormulaireCommentaire, ProgressionLecture } from "@/components/site/interactifs";
@@ -173,9 +173,13 @@ async function Article({ params }: { params: PageProps<"/[lang]/article/[slug]">
                 <strong className="font-titre uppercase tracking-[0.12em] text-or-fonce">{t.contenuPartenaire}</strong> · {t.enCollaborationAvec} <strong>{a.partenaire}</strong>.
               </p>
             )}
-            {!a.partenaire && <Pub emplacement="ARTICLE_HAUT" className="mb-8" />}
-            <TexteRiche doc={a.contenu} />
-            {!a.partenaire && <Pub emplacement="ARTICLE_BAS" className="mt-10" />}
+            {/* Contenu partenaire : aucun encart d'un autre annonceur (ART-01, ART-02, ART-04 désactivés) */}
+            {!a.partenaire && <AdSlot code="ART-01" lang={lang} className="mb-8" />}
+            <TexteRiche
+              doc={a.contenu}
+              encart={a.partenaire ? undefined : (rang) => <AdSlot code="ART-02" lang={lang} decalage={rang} className="!my-10" />}
+            />
+            {!a.partenaire && <AdSlot code="ART-04" lang={lang} className="mt-10" />}
 
             {a.motsCles.length > 0 && (
               <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-ligne pt-6">

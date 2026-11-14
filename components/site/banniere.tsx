@@ -19,6 +19,28 @@ const TEXTES = {
   },
 } as const;
 
+/**
+ * Le même visuel en diapositive du billboard HP-01 (carrousel avec des annonceurs) : centré sur un fond
+ * assorti, sans recadrage, puisque son format (2100 × 267) est plus allongé que le billboard (970 × 250).
+ */
+export function SlideAwards({ lang }: { lang: Langue }) {
+  const t = TEXTES[lang];
+  return (
+    <a
+      href="https://www.digiewomenawards.com"
+      target="_blank"
+      rel="noopener"
+      className="banniere group relative grid size-full place-items-center overflow-hidden bg-[#06302f] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-or"
+    >
+      <Image src={banniere} alt={t.alt} sizes="(min-width: 1024px) 970px, calc(100vw - 32px)" placeholder="blur" preload className="h-auto w-full" />
+      <span className="pointer-events-none absolute bottom-3 right-3 hidden items-center gap-1 rounded-full bg-or px-3 py-1 text-xs font-bold uppercase tracking-wide text-noir shadow-md md:inline-flex">
+        {t.action}
+        <ArrowUpRight className="size-3.5" aria-hidden />
+      </span>
+    </a>
+  );
+}
+
 export function Banniere({ lang }: { lang: Langue }) {
   const t = TEXTES[lang];
   return (

@@ -11,7 +11,7 @@ import { SelecteurMedia, type MediaLeger } from "@/components/admin/mediatheque"
 import { classesBouton, classesChamp, Message } from "@/components/admin/ui";
 import { imageOptimisable } from "@/lib/images";
 import { cn } from "@/lib/cn";
-import { EMPLACEMENTS_PUB, type CleEmplacement } from "@/lib/publicite-emplacements";
+import { EMPLACEMENTS_PUB, LANGUES_PUB, type CleEmplacement, type CleLanguePub } from "@/lib/publicite-emplacements";
 
 export type PubliciteFormulaire = {
   id: string;
@@ -20,6 +20,9 @@ export type PubliciteFormulaire = {
   emplacement: CleEmplacement;
   imageUrl: string;
   imageAlt: string;
+  imageMobileUrl: string;
+  imageAltEn: string;
+  langue: CleLanguePub;
   lien: string;
   debut: string; // AAAA-MM-JJ
   fin: string;
@@ -44,12 +47,14 @@ export function FormulairePublicite({ pub, medias, onFini }: { pub?: PubliciteFo
   const [emplacement, setEmplacement] = useState<CleEmplacement>(pub?.emplacement ?? "HAUT_PAGE");
   const [imageUrl, setImageUrl] = useState(pub?.imageUrl ?? "");
   const [imageAlt, setImageAlt] = useState(pub?.imageAlt ?? "");
+  const [imageMobileUrl, setImageMobileUrl] = useState(pub?.imageMobileUrl ?? "");
   const { etat, onSubmit, enCours, ref } = useFormulaire(enregistrerPublicite, {
     viderSiSucces: !pub,
     apresSucces: () => {
       if (!pub) {
         setImageUrl("");
         setImageAlt("");
+        setImageMobileUrl("");
       }
       router.refresh();
       onFini?.();
@@ -94,8 +99,11 @@ export function FormulairePublicite({ pub, medias, onFini }: { pub?: PubliciteFo
               />
             </div>
           </Champ>
-          <Champ label="Texte alternatif" requis aide="Ce que dit la bannière, pour les lecteurs d'écran.">
+          <Champ label="Texte alternatif (français)" requis aide="Ce que dit la bannière, pour les lecteurs d'écran.">
             <input name="imageAlt" required value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} maxLength={200} className={classesChamp} />
+          </Champ>
+          <Champ label="Texte alternatif (anglais)" aide="Pour la version /en du site. Vide = texte français.">
+            <input name="imageAltEn" defaultValue={pub?.imageAltEn} maxLength={200} className={classesChamp} />
           </Champ>
         </div>
         <div className="grid place-items-center border border-dashed border-ligne bg-fond-2 p-2">
@@ -106,6 +114,34 @@ export function FormulairePublicite({ pub, medias, onFini }: { pub?: PubliciteFo
           )}
         </div>
       </div>
+
+      {EMPLACEMENTS_PUB[emplacement].mobile ? (
+        <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+          <Champ label="Image mobile (recommandée)" aide="640 × 200 px, affichée sur téléphone (320 × 100). Vide = image principale recadrée.">
+            <div className="flex gap-2">
+              <input name="imageMobileUrl" value={imageMobileUrl} onChange={(e) => setImageMobileUrl(e.target.value)} className={classesChamp} placeholder="https://res.cloudinary.com/…" />
+              <SelecteurMedia medias={medias} libelle="Médiathèque" onChoisir={(m) => setImageMobileUrl(m.url)} />
+            </div>
+          </Champ>
+          <div className="grid place-items-center border border-dashed border-ligne bg-fond-2 p-2">
+            {imageMobileUrl && /^(https:\/\/|\/)/.test(imageMobileUrl) ? (
+              <Image src={imageMobileUrl} unoptimized={!imageOptimisable(imageMobileUrl)} alt="" width={320} height={100} className="h-auto max-h-24 w-full object-contain" />
+            ) : (
+              <span className="text-xs text-texte-doux">Aperçu mobile</span>
+            )}
+          </div>
+        </div>
+      ) : (
+        <input type="hidden" name="imageMobileUrl" value="" />
+      )}
+
+      <Champ label="Langue de diffusion" aide="Une campagne en anglais peut n'être montrée que sur la version /en.">
+        <select name="langue" defaultValue={pub?.langue ?? "TOUTES"} className={classesChamp}>
+          {Object.entries(LANGUES_PUB).map(([cle, libelle]) => (
+            <option key={cle} value={cle}>{libelle}</option>
+          ))}
+        </select>
+      </Champ>
 
       <Champ label="Lien de destination" requis aide="Page de l'annonceur ouverte au clic (les clics sont comptés).">
         <input name="lien" type="url" required defaultValue={pub?.lien} placeholder="https://…" className={classesChamp} />

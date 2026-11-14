@@ -312,8 +312,19 @@ export async function getIndexPublic() {
   return { articles, rubriques, numeros, motsCles, auteurs };
 }
 
-export type EmplacementPublicite = "HAUT_PAGE" | "ACCUEIL" | "ARTICLE_HAUT" | "ARTICLE_BAS" | "BARRE_LATERALE" | "SPONSORS" | "NEWSLETTER";
-export type PubliciteAffichee = { id: string; annonceur: string; imageUrl: string; imageAlt: string; poids: number; debut: number | null; fin: number | null };
+export type EmplacementPublicite = "HAUT_PAGE" | "ACCUEIL" | "ARTICLE_HAUT" | "ARTICLE_MILIEU" | "ARTICLE_BAS" | "BARRE_LATERALE" | "SPONSORS" | "NEWSLETTER";
+export type PubliciteAffichee = {
+  id: string;
+  annonceur: string;
+  imageUrl: string;
+  imageMobileUrl: string | null;
+  imageAlt: string;
+  imageAltEn: string | null;
+  langue: "TOUTES" | "FR" | "EN";
+  poids: number;
+  debut: number | null;
+  fin: number | null;
+};
 
 /**
  * Campagnes actives par emplacement. Les dates de début et de fin sont transmises au navigateur,
@@ -327,13 +338,16 @@ export async function getPublicites(): Promise<Record<EmplacementPublicite, Publ
     where: { actif: true, OR: [{ fin: null }, { fin: { gt: new Date(Date.now() - 86_400_000) } }] },
     orderBy: { creeLe: "asc" },
   });
-  const parEmplacement = { HAUT_PAGE: [], ACCUEIL: [], ARTICLE_HAUT: [], ARTICLE_BAS: [], BARRE_LATERALE: [], SPONSORS: [], NEWSLETTER: [] } as Record<EmplacementPublicite, PubliciteAffichee[]>;
+  const parEmplacement = { HAUT_PAGE: [], ACCUEIL: [], ARTICLE_HAUT: [], ARTICLE_MILIEU: [], ARTICLE_BAS: [], BARRE_LATERALE: [], SPONSORS: [], NEWSLETTER: [] } as Record<EmplacementPublicite, PubliciteAffichee[]>;
   for (const p of liste) {
     parEmplacement[p.emplacement].push({
       id: p.id,
       annonceur: p.annonceur,
       imageUrl: p.imageUrl,
+      imageMobileUrl: p.imageMobileUrl,
       imageAlt: p.imageAlt,
+      imageAltEn: p.imageAltEn,
+      langue: p.langue,
       poids: Math.max(1, p.poids),
       debut: p.debut?.getTime() ?? null,
       fin: p.fin?.getTime() ?? null,

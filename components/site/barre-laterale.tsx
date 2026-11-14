@@ -6,7 +6,7 @@ import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { CarteClassement, TitreBloc } from "@/components/site/cartes";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
 import { DetailMeteo } from "@/components/site/meteo";
-import { Pub } from "@/components/site/pub";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { IconeMarque } from "@/components/site/reseaux";
 import { imageOptimisable } from "@/lib/images";
 
@@ -116,11 +116,16 @@ export async function BlocMotsCles({ lang }: { lang: Langue }) {
   );
 }
 
-export function BarreLaterale({ lang, numero = true, meteo = false }: { lang: Langue; numero?: boolean; meteo?: boolean }) {
+/**
+ * `pubMobile` : false quand la page affiche déjà HP-02 dans son flux sur mobile et tablette
+ * (accueil : après le 3e article) ; l'encart de la colonne n'est alors rendu que sur ordinateur.
+ */
+export function BarreLaterale({ lang, numero = true, meteo = false, pubMobile = true }: { lang: Langue; numero?: boolean; meteo?: boolean; pubMobile?: boolean }) {
   return (
     <aside className="space-y-12">
       <BlocPlusLus lang={lang} />
-      <Pub emplacement="BARRE_LATERALE" format="pave" />
+      {/* HP-02 — rectangle 300 × 250, entre « Les plus lus » et « Météo » */}
+      <AdSlot code="HP-02" lang={lang} className={pubMobile ? undefined : "max-lg:hidden"} />
       {meteo && <BlocMeteo lang={lang} />}
       <BlocNewsletter lang={lang} />
       <BlocWhatsApp lang={lang} />

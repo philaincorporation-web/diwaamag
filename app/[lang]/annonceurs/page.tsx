@@ -82,23 +82,29 @@ const OFFRES: Record<Langue, { valeur: string; titre: string; texte: string }[]>
   ],
 };
 
-const EMPLACEMENTS: Record<Langue, [string, string, string][]> = {
+// Grille standard (formats IAB) : [emplacement, où, format affiché, fichier à fournir].
+const EMPLACEMENTS: Record<Langue, [string, string, string, string][]> = {
   fr: [
-    ["Haut de page", "Sous le menu, sur toutes les pages du site", "1600 × 200 px"],
-    ["Accueil", "Entre les grandes sections de la page d'accueil", "1600 × 200 px"],
-    ["Article", "Avant et après le texte de chaque article", "1600 × 200 px"],
-    ["Barre latérale", "Accueil, rubriques et articles", "600 × 600 ou 600 × 900 px"],
-    ["Mur des partenaires", "Logos au-dessus du pied de page, sur toutes les pages", "Logo PNG transparent, 400 × 160 px"],
-    ["Newsletter", "En tête de chaque lettre d'information", "1200 × 300 px"],
+    ["Billboard haut de page", "Sous le menu, sur toutes les pages, en rotation avec 1 à 2 annonceurs", "970 × 250 (mobile 320 × 100)", "1940 × 500 + 640 × 200"],
+    ["Bannière accueil et articles", "Entre les sections de l'accueil, en tête et en fin d'article", "728 × 90 ou 970 × 90 (mobile 320 × 100)", "1456 × 180 + 640 × 200"],
+    ["Rectangle", "Barre latérale de l'accueil et dans le texte des articles", "300 × 250", "600 × 500"],
+    ["Half-page barre latérale", "Colonne de droite (ordinateur)", "300 × 600 (ordinateur)", "600 × 1200"],
+    ["Mur des partenaires", "Logos au-dessus du pied de page, sur toutes les pages", "Logo", "PNG transparent 400 × 160"],
+    ["Newsletter", "En tête de chaque lettre d'information", "600 × 150", "1200 × 300"],
   ],
   en: [
-    ["Top of page", "Below the menu, on every page", "1600 × 200 px"],
-    ["Home page", "Between the main sections of the home page", "1600 × 200 px"],
-    ["Article", "Before and after the text of every article", "1600 × 200 px"],
-    ["Sidebar", "Home page, sections and articles", "600 × 600 or 600 × 900 px"],
-    ["Partner wall", "Logos above the footer, on every page", "Transparent PNG logo, 400 × 160 px"],
-    ["Newsletter", "At the top of every newsletter", "1200 × 300 px"],
+    ["Top billboard", "Below the menu, on every page, rotating with 1 to 2 advertisers", "970 × 250 (mobile 320 × 100)", "1940 × 500 + 640 × 200"],
+    ["Home page and article banner", "Between home page sections, at the top and end of articles", "728 × 90 or 970 × 90 (mobile 320 × 100)", "1456 × 180 + 640 × 200"],
+    ["Rectangle", "Home page sidebar and within article text", "300 × 250", "600 × 500"],
+    ["Sidebar half-page", "Right-hand column (desktop)", "300 × 600 (desktop)", "600 × 1200"],
+    ["Partner wall", "Logos above the footer, on every page", "Logo", "Transparent PNG 400 × 160"],
+    ["Newsletter", "At the top of every newsletter", "600 × 150", "1200 × 300"],
   ],
+};
+
+const COLONNES: Record<Langue, [string, string, string, string]> = {
+  fr: ["Emplacement", "Où", "Format affiché", "Fichier à fournir"],
+  en: ["Placement", "Where", "Displayed size", "File to supply"],
 };
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/annonceurs">): Promise<Metadata> {
@@ -166,13 +172,21 @@ export default async function Annonceurs({ params }: PageProps<"/[lang]/annonceu
         <section aria-labelledby="emplacements">
           <h2 id="emplacements" className="font-titre text-2xl uppercase tracking-wide">{t.emplacementsTitre}</h2>
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[560px] text-sm">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="text-left font-titre text-xs uppercase tracking-[0.14em] text-texte-doux">
+                  {COLONNES[lang].map((c, i) => (
+                    <th key={c} scope="col" className={i > 1 ? "pb-2 pr-4 text-right font-normal last:pr-0" : "pb-2 pr-4 font-normal"}>{c}</th>
+                  ))}
+                </tr>
+              </thead>
               <tbody className="divide-y divide-ligne border-y border-ligne">
-                {EMPLACEMENTS[lang].map(([nom, ou, format]) => (
+                {EMPLACEMENTS[lang].map(([nom, ou, format, fichier]) => (
                   <tr key={nom}>
                     <th scope="row" className="py-3 pr-4 text-left font-semibold">{nom}</th>
                     <td className="py-3 pr-4 text-texte-doux">{ou}</td>
-                    <td className="py-3 text-right font-mono text-xs">{format}</td>
+                    <td className="py-3 pr-4 text-right font-mono text-xs">{format}</td>
+                    <td className="py-3 text-right font-mono text-xs">{fichier}</td>
                   </tr>
                 ))}
               </tbody>

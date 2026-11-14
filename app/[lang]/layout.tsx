@@ -10,8 +10,7 @@ import { EnTete, EnTeteNavigation } from "@/components/site/en-tete";
 import { PiedDePage } from "@/components/site/pied-de-page";
 import { EcranChargement } from "@/components/site/animations";
 import { ClientPwa } from "@/components/pwa/client-pwa";
-import { Banniere } from "@/components/site/banniere";
-import { Pub, Sponsors } from "@/components/site/pub";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { Analytics } from "@vercel/analytics/next";
 
 export function generateStaticParams() {
@@ -54,11 +53,13 @@ export default async function RacineSite({ children, params }: LayoutProps<"/[la
         <Suspense fallback={<EnTete rubriques={nav} numeroCourant={numero} />}>
           <EnTeteNavigation rubriques={nav} numeroCourant={numero} />
         </Suspense>
-        <Pub emplacement="HAUT_PAGE" className="mx-auto w-full max-w-7xl px-4 pt-4" defaut={<Banniere lang={lang} />} />
+        {/* HP-01 — billboard : visuel DigieWomen Awards (campagne interne permanente) + annonceurs */}
+        <AdSlot code="HP-01" lang={lang} />
         <main id="contenu" className="flex-1">
           {children}
         </main>
-        <Sponsors />
+        {/* HP-10 — mur des partenaires */}
+        <AdSlot code="HP-10" lang={lang} />
         <PiedDePage rubriques={nav} lang={lang} />
         <ClientPwa />
         {/* Mesure d'audience (Vercel Web Analytics) : sans cookie, active une fois l'option activée dans Vercel. */}

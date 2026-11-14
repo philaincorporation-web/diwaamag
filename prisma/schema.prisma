@@ -330,11 +330,18 @@ model ImportPdf {
 enum EmplacementPub {
   HAUT_PAGE       // bannière sous la navigation, toutes les pages
   ACCUEIL         // bannières entre les sections de l'accueil
-  ARTICLE_HAUT    // dans l'article, après le partage (avant le texte)
+  ARTICLE_HAUT    // ART-01 : dans l'article, après le partage (avant le texte)
+  ARTICLE_MILIEU  // ART-02 : rectangle dans le texte, après le 3e paragraphe
   ARTICLE_BAS     // dans l'article, après le texte
   BARRE_LATERALE  // pavé dans la barre latérale
   SPONSORS        // mur de logos des partenaires, au-dessus du pied de page
   NEWSLETTER      // bannière en tête des lettres d'information
+}
+
+enum LanguePub {
+  TOUTES
+  FR
+  EN
 }
 
 model Publicite {
@@ -344,6 +351,12 @@ model Publicite {
   emplacement EmplacementPub
   imageUrl    String
   imageAlt    String
+  /// Création mobile (320 × 100 ou 300 × 250) ; sans elle, l'image principale est recadrée.
+  imageMobileUrl String?
+  /// Texte alternatif anglais (version /en) ; sans lui, le texte français est utilisé.
+  imageAltEn  String?
+  /// Langue de diffusion : les deux versions du site, ou seulement /fr ou /en.
+  langue      LanguePub      @default(TOUTES)
   lien        String
   debut       DateTime?
   fin         DateTime?

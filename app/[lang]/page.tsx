@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { ArrowRight, Bot, PlayCircle } from "lucide-react";
 import { getArticlesRubrique, getDernieres, getNumeros, getRubriques, getUne, getVideos, type CarteArticle } from "@/lib/data";
 import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
@@ -10,7 +11,7 @@ import { Apparition, BandeauDefilant, CarrouselUne, OngletsRubriques } from "@/c
 import { BarreLaterale } from "@/components/site/barre-laterale";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
 import { imageOptimisable } from "@/lib/images";
-import { Pub } from "@/components/site/pub";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
   const lang = langueParams((await params).lang);
@@ -80,14 +81,25 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
           </TitreBloc>
           <ul className="divide-y divide-ligne">
             {fil.map((a, i) => (
-              <Apparition as="li" key={a.id} delai={Math.min(i, 4) * 0.05} className="py-6 first:pt-0">
-                <CarteHorizontale article={a} lang={lang} />
-              </Apparition>
+              <Fragment key={a.id}>
+                <Apparition as="li" delai={Math.min(i, 4) * 0.05} className="py-6 first:pt-0">
+                  <CarteHorizontale article={a} lang={lang} />
+                </Apparition>
+                {/* HP-02 sur mobile et tablette : après le 3e article (sur ordinateur, dans la colonne latérale) */}
+                {i === 2 && (
+                  <li className="py-6 lg:hidden">
+                    <AdSlot code="HP-02" lang={lang} />
+                  </li>
+                )}
+              </Fragment>
             ))}
           </ul>
         </section>
-        <BarreLaterale lang={lang} meteo />
+        <BarreLaterale lang={lang} meteo pubMobile={false} />
       </div>
+
+      {/* HP-05 — bannière inter-sections 1 : entre « Dernières actualités » et Gabon / Afrique / Monde */}
+      <AdSlot code="HP-05" lang={lang} className="mx-auto mt-12 max-w-7xl px-4 sm:mt-16" />
 
       {/* 3. Gabon, Afrique, Monde */}
       <section className="mt-10 border-y border-ligne bg-fond-2 py-10 sm:mt-16 sm:py-14" aria-label={t.actualitesParRegion}>
@@ -98,7 +110,6 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
         </div>
       </section>
 
-      <Pub emplacement="ACCUEIL" className="mx-auto mt-12 max-w-7xl px-4" />
 
       {/* 4. Femmes du numérique */}
       <section className="bg-noir py-10 text-white sm:py-16" aria-labelledby="femmes">
@@ -143,7 +154,8 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
         />
       </section>
 
-      <Pub emplacement="ACCUEIL" decalage={1} className="mx-auto mb-16 max-w-7xl px-4" />
+      {/* Bannière d'accueil existante (future HP-07) : ordinateur et tablette uniquement */}
+      <AdSlot code="HP-07" lang={lang} decalage={1} className="mx-auto mb-16 max-w-7xl px-4" />
 
       {/* 6. Espace vidéo */}
       <section className="relative overflow-hidden bg-fond-sombre py-10 text-white sm:py-16" aria-labelledby="videos">
