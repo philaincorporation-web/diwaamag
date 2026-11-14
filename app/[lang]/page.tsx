@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment } from "react";
-import { ArrowRight, PlayCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getArticlesRubrique, getDernieres, getNumeros, getRubriques, getUne, getVideos, type CarteArticle } from "@/lib/data";
 import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { alternates, langueParams } from "@/lib/seo";
@@ -12,6 +12,7 @@ import { BarreLaterale } from "@/components/site/barre-laterale";
 import { FormulaireNewsletter } from "@/components/site/interactifs";
 import { imageOptimisable } from "@/lib/images";
 import { AdSlot } from "@/components/ads/ad-slot";
+import { EspaceVideoAfdy } from "@/components/site/espace-video-afdy";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
   const lang = langueParams((await params).lang);
@@ -164,47 +165,15 @@ export default async function Accueil({ params }: PageProps<"/[lang]">) {
           <TitreBloc sombre href="/videos" lang={lang}>
             <span id="videos">{t.espaceVideo}</span>
           </TitreBloc>
-          {videos.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {/* AFDY invite à regarder sa vidéo « Comment voter », puis la présentation de l'événement */}
+          <EspaceVideoAfdy />
+          {videos.length > 0 && (
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {videos.map((v, i) => (
                 <Apparition key={v.id} delai={i * 0.06}>
                   <CarteVerticale article={v} lang={lang} chapeau={false} sombre sizes="(min-width: 1024px) 25vw, 50vw" />
                 </Apparition>
               ))}
-            </div>
-          ) : (
-            <div className="group grid items-center gap-8 border border-white/10 bg-white/5 p-8 md:grid-cols-[auto_1fr]">
-              {/* Avatar AFDY : au survol, il s'élève, le halo doré s'élargit et une bulle « Bonjour » apparaît */}
-              <div className="relative mx-auto aspect-[640/1020] w-44 sm:w-52 md:mx-0">
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 top-[22%] mx-auto aspect-square w-[88%] rounded-full bg-or/85 transition duration-500 ease-out group-hover:bg-or group-hover:shadow-[0_0_70px_12px_rgba(205,164,14,0.45)] motion-safe:group-hover:scale-110"
-                />
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 top-[22%] mx-auto aspect-square w-[88%] animate-ping rounded-full border-2 border-or opacity-30 [animation-duration:2.5s] motion-reduce:animate-none"
-                />
-                <Image
-                  src="/images/afdy-avatar.webp"
-                  alt={t.avatarAfdy}
-                  fill
-                  sizes="(min-width: 640px) 208px, 176px"
-                  className="object-contain object-bottom drop-shadow-[0_18px_24px_rgba(0,0,0,0.45)] transition duration-500 ease-out [mask-image:linear-gradient(to_bottom,black_82%,transparent)] motion-safe:group-hover:-translate-y-2 motion-safe:group-hover:scale-[1.04]"
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute -top-4 left-[64%] whitespace-nowrap rounded-2xl rounded-bl-none bg-white px-3 py-1.5 text-xs font-bold text-noir opacity-0 shadow-lg transition duration-300 group-hover:opacity-100 motion-safe:translate-y-1 motion-safe:group-hover:translate-y-0"
-                >
-                  {t.bonjourAfdy}
-                </span>
-              </div>
-              <div>
-                <p className="font-titre text-sm uppercase tracking-[0.3em] text-or">{t.bientotEnLigne}</p>
-                <h3 className="mt-2 font-titre text-3xl uppercase">{t.interviewsAfdy}</h3>
-                <p className="mt-3 max-w-2xl text-white/70">
-                  {t.texteAfdy} <PlayCircle className="inline size-4 text-or" aria-hidden />
-                </p>
-              </div>
             </div>
           )}
         </div>
