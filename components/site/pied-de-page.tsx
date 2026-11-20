@@ -16,7 +16,7 @@ export function PiedDePage({ rubriques, lang }: { rubriques: RubriqueNav[]; lang
       <div className="h-1 bg-or" />
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <Logo clair taille="sm" href={L("/")} slogan={t.slogan} />
+          <Logo clair taille="md" href={L("/")} slogan={t.slogan} />
           <p className="mt-5 max-w-sm text-sm leading-relaxed">{t.presentationPied}</p>
           <ReseauxSociaux className="mt-6 text-white" />
           <div className="mt-6">

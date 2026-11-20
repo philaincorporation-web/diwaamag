@@ -10,6 +10,7 @@ import { useValeurNavigateur } from "@/lib/hooks";
 import { useLangue } from "@/components/i18n/contexte";
 import { lien } from "@/lib/i18n";
 import { imageOptimisable } from "@/lib/images";
+import logoBlanc from "@/public/images/DIWA_MAG_LOGO_Blanc.png";
 
 /**
  * Apparition progressive au défilement.
@@ -269,23 +270,14 @@ export function EcranChargement() {
           aria-hidden
         >
           <div className="text-center">
-            <motion.p
-              className="font-titre text-7xl font-bold uppercase text-white"
-              initial={{ letterSpacing: "0.6em", opacity: 0 }}
-              animate={{ letterSpacing: "0.02em", opacity: 1 }}
+            <motion.div
+              initial={{ scale: 1.25, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              DIW<span className="text-or">A</span>
-            </motion.p>
-            <motion.div className="mx-auto mt-4 h-1 bg-or" initial={{ width: 0 }} animate={{ width: 180 }} transition={{ duration: 0.9, delay: 0.3 }} />
-            <motion.p
-              className="mt-4 font-titre text-sm uppercase tracking-[0.4em] text-or"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              Mag
-            </motion.p>
+              <Image src={logoBlanc} alt="" preload className="mx-auto h-auto w-72 max-w-[80vw]" />
+            </motion.div>
+            <motion.div className="mx-auto mt-6 h-1 bg-or" initial={{ width: 0 }} animate={{ width: 180 }} transition={{ duration: 0.9, delay: 0.3 }} />
           </div>
         </motion.div>
       )}

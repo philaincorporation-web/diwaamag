@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Variante « dark: » liée au thème du site (attribut data-theme sur <html>), pas au réglage du système. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* Charte DIWAA 2026 — or du DIWA MAG, encre profonde, brun « Entrepreneuriat ».
    « encre » = couleur du texte (s'inverse en thème sombre) ; « noir » = fonds toujours sombres et texte posé sur l'or. */
 :root {

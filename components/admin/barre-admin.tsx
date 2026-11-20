@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import logoBlanc from "@/public/images/DIWA_MAG_LOGO_Blanc.png";
 import { useState } from "react";
 import {
   FileText,
@@ -59,8 +61,9 @@ export function BarreAdmin({ admin, enAttente }: { admin: { nom: string; role: s
   const contenu = (
     <>
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
-        <Link href="/admin" className="font-titre text-3xl font-bold uppercase leading-none">
-          DIW<span className="text-or">A</span> <span className="bg-or px-1 text-base text-noir">ADMIN</span>
+        <Link href="/admin" className="flex flex-col items-start gap-1.5 leading-none" aria-label="DIWA MAG — Administration">
+          <Image src={logoBlanc} alt="" className="h-12 w-auto" />
+          <span className="bg-or px-1.5 py-0.5 font-titre text-xs font-bold uppercase tracking-[0.2em] text-noir">Admin</span>
         </Link>
         <button type="button" onClick={() => setOuvert(false)} className="lg:hidden" aria-label="Fermer le menu">
           <X className="size-5" />
@@ -113,7 +116,10 @@ export function BarreAdmin({ admin, enAttente }: { admin: { nom: string; role: s
         <button type="button" onClick={() => setOuvert(true)} aria-label="Ouvrir le menu" aria-expanded={ouvert}>
           <Menu className="size-6" />
         </button>
-        <span className="font-titre text-xl uppercase">DIW<span className="text-or">A</span> Admin</span>
+        <span className="flex items-center gap-2">
+          <Image src={logoBlanc} alt="DIWA MAG" className="h-8 w-auto" />
+          <span className="bg-or px-1 font-titre text-[11px] font-bold uppercase tracking-[0.15em] text-noir">Admin</span>
+        </span>
         <span className="w-6" />
       </div>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-noir text-white lg:flex">{contenu}</aside>

@@ -100,8 +100,8 @@ export function EnTete({ rubriques, numeroCourant, chemin = "" }: ProprietesEnTe
 
       {/* Bandeau logo */}
       <div className="border-b border-ligne bg-fond">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 sm:py-7">
-          <Logo taille="md" href={L("/")} slogan={t.slogan} />
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-6 px-4 py-4 sm:py-6 md:justify-between">
+          <Logo taille="md" href={L("/")} slogan={t.slogan} prioritaire />
           <p className="hidden max-w-sm text-right font-serif text-sm italic leading-snug text-texte-doux lg:block">{t.accroche}</p>
           {numeroCourant && (
             <Link

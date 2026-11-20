@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import logoBlanc from "@/public/images/DIWA_MAG_LOGO_Blanc.png";
 import { Suspense } from "react";
 import { FormulaireConnexion } from "@/components/admin/formulaire-connexion";
 
@@ -9,9 +11,7 @@ export default function PageConnexion({ searchParams }: PageProps<"/admin/connex
     <div className="grid min-h-dvh lg:grid-cols-2">
       <div className="relative hidden overflow-hidden bg-noir p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute -bottom-32 -right-32 size-[28rem] rounded-full border-[60px] border-or/15" aria-hidden />
-        <p className="font-titre text-6xl font-bold uppercase">
-          DIW<span className="text-or">A</span> <span className="bg-or px-2 text-3xl text-noir">MAG</span>
-        </p>
+        <Image src={logoBlanc} alt="DIWA MAG — Le magazine de la femme digitale" preload className="relative h-28 w-auto" />
         <div className="relative">
           <p className="font-titre text-sm uppercase tracking-[0.3em] text-or">Back-office</p>
           <p className="mt-3 max-w-md font-serif text-2xl leading-snug text-white/85">

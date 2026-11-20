@@ -6,6 +6,7 @@ import type { CarteArticle } from "@/lib/data";
 import { dico, formatDate, lien, type Langue } from "@/lib/i18n";
 import { cn } from "@/lib/cn";
 import { imageOptimisable } from "@/lib/images";
+import logoBlanc from "@/public/images/DIWA_MAG_LOGO_Blanc.png";
 
 type Rubrique = CarteArticle["rubrique"];
 
@@ -77,7 +78,9 @@ function Visuel({ article, sizes, className, prioritaire, lang }: { article: Car
           className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
         />
       ) : (
-        <div className="absolute inset-0 grid place-items-center bg-noir font-titre text-3xl text-or">DIWA</div>
+        <div className="absolute inset-0 grid place-items-center bg-noir">
+          <Image src={logoBlanc} alt="" className="h-auto w-1/2 max-w-48 opacity-80" />
+        </div>
       )}
       {article.type === "VIDEO" && (
         <span className="absolute left-3 top-3 grid size-10 place-items-center rounded-full bg-or text-noir shadow-lg">

@@ -25,7 +25,7 @@ export function htmlInvitation({ nom, email, role, motDePasse, invitePar }: Invi
   const connexion = siteUrl("/admin/connexion");
   const libelleRole = role === "SUPER_ADMIN" ? "super-administrateur" : "administrateur";
   return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#111">
-  <div style="background:#111;padding:20px;color:#fff;font:bold 28px Impact,Arial">DIW<span style="color:#cda40e">A</span> MAG <span style="font:600 12px Arial;color:#cda40e;letter-spacing:2px">BACK-OFFICE</span></div>
+  <div style="background:#111;padding:20px;color:#fff;font:bold 22px Arial"><img src="${siteUrl("/images/DIWA_MAG_LOGO_Blanc.png")}" alt="DIWA MAG" width="200" height="59" style="display:block;border:0;height:auto"><span style="display:block;margin-top:8px;font:600 12px Arial;color:#cda40e;letter-spacing:2px">BACK-OFFICE</span></div>
   <div style="padding:24px;border:1px solid #eee;border-top:0">
     <p style="font-size:16px">Bonjour ${echapper(nom)},</p>
     <p style="font-size:15px;line-height:1.6">${echapper(invitePar)} vous a créé un compte <strong>${libelleRole}</strong> sur le back-office du magazine DIWA MAG.</p>
