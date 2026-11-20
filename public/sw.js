@@ -3,7 +3,7 @@
  *  - images : cache d'abord, expiration 30 jours ;
  *  - ressources statiques Next.js : cache d'abord (fichiers versionnés).
  * Le back-office (/admin) et l'API ne sont jamais mis en cache. */
-const VERSION = "diwa-v3";
+const VERSION = "diwa-v4";
 const CACHE_PAGES = `${VERSION}-pages`;
 const CACHE_IMAGES = `${VERSION}-images`;
 const CACHE_STATIQUE = `${VERSION}-statique`;
